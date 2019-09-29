@@ -1,5 +1,4 @@
 import cnf.CNF;
-import cnf.Disjunction;
 
 import java.util.Comparator;
 
@@ -14,44 +13,45 @@ public class DPLL {
 
         for (Integer unitLiteral : cnf.getUnitLiterals()) {
             cnf = unitPropagate(cnf, unitLiteral);
-            model = model.addTrueInterpretation(unitLiteral);
+            model = model.addInterpretation(unitLiteral);
         }
 
-        for (Integer unitLiteral : cnf.getPureLiterals()) {
-            cnf = eliminatePureLiteral(cnf, unitLiteral);
-            model = model.addTrueInterpretation(unitLiteral);
+        for (Integer pureLiteral : cnf.getPureLiterals()) {
+            cnf = eliminatePureLiteral(cnf, pureLiteral);
+            model = model.addInterpretation(pureLiteral);
+        }
+
+        if (cnf.isEmpty()) {
+            return model;
+        }
+        if (cnf.containsEmptyDisjunction()) {
+            return null;
         }
 
         int literal = chooseLiteral(cnf);
 
         CNF cnfWithLiteralTrue = new CNF(cnf).addSingleLiteralClause(literal);
-        Model result = solve(cnfWithLiteralTrue, model.addTrueInterpretation(literal));
+        Model result = solve(cnfWithLiteralTrue, model.addInterpretation(literal));
         if (result != null) {
             return result;
         }
 
         CNF cnfWithLiteralFalse = new CNF(cnf).addSingleLiteralClause(-literal);
-        return solve(cnfWithLiteralFalse, model.addFalseInterpretation(-literal));
+        return solve(cnfWithLiteralFalse, model.addInterpretation(-literal));
     }
 
     private static CNF unitPropagate(CNF cnf, int literal) {
-        CNF newCnf = new CNF(cnf);
-        return eliminatePureLiteral(newCnf.removeAllDisjunctionsWithLiteral(literal), -literal);
+        return new CNF(cnf).removeAllDisjunctionsWithLiteral(literal).removeLiteralInAllDisjunctions(-literal);
     }
 
     private static CNF eliminatePureLiteral(CNF cnf, int literal) {
-        CNF newCnf = new CNF(cnf);
-        for (Disjunction disjunction : newCnf.getAllDisjunctions()) {
-            if (disjunction.contains(literal)) {
-                disjunction.remove(literal);
-            }
-        }
-        return newCnf;
+        return new CNF(cnf).removeAllDisjunctionsWithLiteral(literal).removeLiteralInAllDisjunctions(-literal);
     }
 
     private static Integer chooseLiteral(CNF cnf) {
         return cnf.getAllDisjunctions().stream()
                 .flatMap(disjunction -> disjunction.values.stream())
+                .map(Math::abs)
                 .min(Comparator.naturalOrder())
                 .get();
     }

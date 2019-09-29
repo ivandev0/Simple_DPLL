@@ -2,7 +2,6 @@ package cnf;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,7 +13,7 @@ public class CNF {
     }
 
     public CNF(CNF toCopy) {
-        this.clauses = new ArrayList<>(toCopy.clauses);
+        this.clauses = toCopy.clauses.stream().map(Disjunction::new).collect(Collectors.toList());
     }
 
     public CNF addSingleLiteralClause(Integer literal) {
@@ -28,6 +27,11 @@ public class CNF {
 
     public CNF removeAllDisjunctionsWithLiteral(int literal) {
         clauses.removeIf(disjunction -> disjunction.contains(literal));
+        return this;
+    }
+
+    public CNF removeLiteralInAllDisjunctions(int literal) {
+        clauses.forEach(disjunction -> disjunction.remove(literal));
         return this;
     }
 

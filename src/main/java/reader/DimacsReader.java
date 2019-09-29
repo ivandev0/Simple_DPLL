@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 public class DimacsReader {
-    static CNF readFromFile(File file) throws IOException {
+    public static CNF readFromFile(File file) throws IOException {
         BufferedReader br = Files.newBufferedReader(file.toPath());
 
         List<String> lines = new ArrayList<>();
@@ -24,11 +24,10 @@ public class DimacsReader {
         return deserialize(lines);
     }
 
-    static CNF readFromString(String str) {
+    public static CNF readFromString(String str) {
         StringTokenizer st = new StringTokenizer(str, "\n");
 
         List<String> lines = new ArrayList<>();
-        String line;
         while (st.hasMoreTokens()) {
             lines.add(st.nextToken());
         }

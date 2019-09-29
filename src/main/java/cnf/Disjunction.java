@@ -12,6 +12,11 @@ public class Disjunction {
         this.values = values;
     }
 
+    public Disjunction(Disjunction other) {
+        this.values = new ArrayList<>(other.values);
+        this.isEmpty = other.isEmpty;
+    }
+
     public Disjunction(Integer singleLiteral) {
         this.values = new ArrayList<>();
         this.values.add(singleLiteral);

@@ -21,8 +21,7 @@ public class DPLLTest {
                 "-1 -2 3 0"
         );
 
-        Set<Integer> set = new TreeSet<Integer>() {{ add(1); add(2); add(3); add(4); }};
-        Assert.assertEquals(new Model(set), DPLL.solve(cnf, new Model()));
+        Assert.assertEquals(new Model(1, 2, 3, 4), DPLL.solve(cnf, new Model()));
     }
 
     @Test
@@ -33,8 +32,7 @@ public class DPLLTest {
                 "-1 3 0"
         );
 
-        Set<Integer> set = new TreeSet<Integer>() {{ add(2); add(3); }};
-        Assert.assertEquals(new Model(set), DPLL.solve(cnf, new Model()));
+        Assert.assertEquals(new Model(2, 3), DPLL.solve(cnf, new Model()));
     }
 
     @Test
@@ -45,7 +43,6 @@ public class DPLLTest {
                 "-1 3 0"
         );
 
-        Set<Integer> set = new TreeSet<Integer>() {{ add(-2); add(3); }};
-        Assert.assertEquals(new Model(set), DPLL.solve(cnf, new Model()));
+        Assert.assertEquals(new Model(-2, 3), DPLL.solve(cnf, new Model()));
     }
 }

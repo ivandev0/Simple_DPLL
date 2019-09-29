@@ -8,6 +8,10 @@ public class Model {
         model = new TreeSet<>();
     }
 
+    public Model(Integer... model) {
+        this.model = new TreeSet<>(Arrays.asList(model));
+    }
+
     public Model(Set<Integer> model) {
         this.model = new TreeSet<>(model);
     }

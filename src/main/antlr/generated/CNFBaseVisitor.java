@@ -24,13 +24,6 @@ public class CNFBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements CN
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitEquivalence(CNFParser.EquivalenceContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
 	@Override public T visitConjunction(CNFParser.ConjunctionContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}

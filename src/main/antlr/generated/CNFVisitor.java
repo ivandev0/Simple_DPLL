@@ -18,13 +18,6 @@ public interface CNFVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitNot(CNFParser.NotContext ctx);
 	/**
-	 * Visit a parse tree produced by the {@code equivalence}
-	 * labeled alternative in {@link CNFParser#cnf}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitEquivalence(CNFParser.EquivalenceContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code conjunction}
 	 * labeled alternative in {@link CNFParser#cnf}.
 	 * @param ctx the parse tree

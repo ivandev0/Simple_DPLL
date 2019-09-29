@@ -6,7 +6,6 @@ cnf: IDENTIFIER         #identifierAtom
     | cnf 'v' cnf       #disjunction
     | cnf '^' cnf       #conjunction
     | cnf '->' cnf      #implication
-    | cnf '<->' cnf     #equivalence
     ;
 
 IDENTIFIER: [a-zA-Z0-9]+;

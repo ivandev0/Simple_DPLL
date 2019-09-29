@@ -60,4 +60,11 @@ public class CNF {
 
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "[" +
+                clauses.stream().map(String::valueOf).collect(Collectors.joining(" ")) +
+                ']';
+    }
 }

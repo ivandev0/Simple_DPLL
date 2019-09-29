@@ -2,6 +2,7 @@ package cnf;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Disjunction {
     public List<Integer> values;
@@ -41,5 +42,12 @@ public class Disjunction {
         if (values.size() == 0) {
             isEmpty = true;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "[" +
+                values.stream().map(String::valueOf).collect(Collectors.joining(", ")) +
+                ']';
     }
 }

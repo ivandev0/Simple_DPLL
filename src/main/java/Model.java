@@ -19,6 +19,19 @@ public class Model {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Model other = (Model) o;
+        return Objects.equals(model, other.model);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(model);
+    }
+
+    @Override
     public String toString() {
         return model.stream().map(String::valueOf).collect(Collectors.joining("; "));
     }

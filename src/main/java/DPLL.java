@@ -41,11 +41,11 @@ public class DPLL {
     }
 
     private static CNF unitPropagate(CNF cnf, int literal) {
-        return new CNF(cnf).removeAllDisjunctionsWithLiteral(literal).removeLiteralInAllDisjunctions(-literal);
+        return eliminatePureLiteral(new CNF(cnf).removeLiteralInAllDisjunctions(-literal), literal);
     }
 
     private static CNF eliminatePureLiteral(CNF cnf, int literal) {
-        return new CNF(cnf).removeAllDisjunctionsWithLiteral(literal).removeLiteralInAllDisjunctions(-literal);
+        return new CNF(cnf).removeAllDisjunctionsWithLiteral(literal);
     }
 
     private static Integer chooseLiteral(CNF cnf) {

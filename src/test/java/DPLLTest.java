@@ -3,9 +3,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import reader.DimacsReader;
 
-import java.util.Set;
-import java.util.TreeSet;
-
 public class DPLLTest {
     @Test
     public void taskFromClass() {
@@ -21,7 +18,7 @@ public class DPLLTest {
                 "-1 -2 3 0"
         );
 
-        Assert.assertEquals(new Model(1, 2, 3, 4), DPLL.solve(cnf, new Model()));
+        Assert.assertEquals(new Model(1, 2, 3, 4), DPLL.solve(cnf));
     }
 
     @Test
@@ -32,7 +29,7 @@ public class DPLLTest {
                 "-1 3 0"
         );
 
-        Assert.assertEquals(new Model(2, 3), DPLL.solve(cnf, new Model()));
+        Assert.assertEquals(new Model(2, 3), DPLL.solve(cnf));
     }
 
     @Test
@@ -43,6 +40,6 @@ public class DPLLTest {
                 "-1 3 0"
         );
 
-        Assert.assertEquals(new Model(-2, 3), DPLL.solve(cnf, new Model()));
+        Assert.assertEquals(new Model(-2, 3), DPLL.solve(cnf));
     }
 }

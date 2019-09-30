@@ -3,7 +3,11 @@ import cnf.CNF;
 import java.util.Comparator;
 
 public class DPLL {
-    public static Model solve(CNF cnf, Model model) {
+    public static Model solve(CNF cnf) {
+        return solve(cnf, new Model());
+    }
+
+    private static Model solve(CNF cnf, Model model) {
         if (cnf.isEmpty()) {
             return model;
         }

@@ -29,11 +29,6 @@ public class FormulaVisitor extends CNFBaseVisitor<Integer> {
     @Override
     public Integer visitNot(CNFParser.NotContext ctx) {
         Integer node = visit(ctx.cnf());
-        //Integer additionalVar = pool.idByName("@" + (++currentNewVarNumber));
-
-        //disjunctions.add(new Disjunction(-additionalVar, -node));
-        //disjunctions.add(new Disjunction(additionalVar, node));
-
         return -node;
     }
 

@@ -3,6 +3,7 @@ package cnf;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Disjunction {
@@ -48,6 +49,20 @@ public class Disjunction {
         if (values.size() == 0) {
             isEmpty = true;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Disjunction other = (Disjunction) o;
+        return isEmpty == other.isEmpty &&
+                Objects.equals(values, other.values);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(values, isEmpty);
     }
 
     @Override

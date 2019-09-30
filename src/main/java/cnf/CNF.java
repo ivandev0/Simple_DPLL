@@ -2,6 +2,7 @@ package cnf;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -63,6 +64,19 @@ public class CNF {
         }
 
         return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CNF cnf = (CNF) o;
+        return Objects.equals(clauses, cnf.clauses);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(clauses);
     }
 
     @Override

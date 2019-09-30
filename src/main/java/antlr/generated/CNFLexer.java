@@ -1,5 +1,5 @@
-// Generated from E:/!PROJECTS/IntelliJ_IDEA/dpll/src/main/antlr\CNF.g4 by ANTLR 4.7.2
-package generated;
+// Generated from E:/!PROJECTS/IntelliJ_IDEA/dpll/src/main/java/antlr\CNF.g4 by ANTLR 4.7.2
+package antlr.generated;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;

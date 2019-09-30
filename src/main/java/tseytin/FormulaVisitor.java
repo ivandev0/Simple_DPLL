@@ -16,7 +16,8 @@ public class FormulaVisitor extends CNFBaseVisitor<Integer> {
 
     public CNF parse(CNFParser.CnfContext ctx) {
         disjunctions = new ArrayList<>();
-        visit(ctx);
+        int mainVar = visit(ctx);
+        disjunctions.add(new Disjunction(mainVar));
         return new CNF(disjunctions);
     }
 
@@ -28,12 +29,12 @@ public class FormulaVisitor extends CNFBaseVisitor<Integer> {
     @Override
     public Integer visitNot(CNFParser.NotContext ctx) {
         Integer node = visit(ctx.cnf());
-        Integer additionalVar = pool.idByName("@" + (++currentNewVarNumber));
+        //Integer additionalVar = pool.idByName("@" + (++currentNewVarNumber));
 
-        disjunctions.add(new Disjunction(-additionalVar, -node));
-        disjunctions.add(new Disjunction(additionalVar, node));
+        //disjunctions.add(new Disjunction(-additionalVar, -node));
+        //disjunctions.add(new Disjunction(additionalVar, node));
 
-        return additionalVar;
+        return -node;
     }
 
     @Override
@@ -73,5 +74,10 @@ public class FormulaVisitor extends CNFBaseVisitor<Integer> {
         disjunctions.add(new Disjunction(-left, additionalVar));
 
         return additionalVar;
+    }
+
+    @Override
+    public Integer visitParenthesized(CNFParser.ParenthesizedContext ctx) {
+        return visit(ctx.cnf());
     }
 }

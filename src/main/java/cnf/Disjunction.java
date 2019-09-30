@@ -1,6 +1,7 @@
 package cnf;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,8 +9,8 @@ public class Disjunction {
     public List<Integer> values;
     boolean isEmpty = false;
 
-    public Disjunction(List<Integer> values) {
-        this.values = values;
+    public Disjunction(Integer... values) {
+        this.values = Arrays.asList(values);
     }
 
     public Disjunction(Disjunction other) {

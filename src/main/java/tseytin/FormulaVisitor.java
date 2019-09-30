@@ -21,8 +21,13 @@ public class FormulaVisitor extends CNFBaseVisitor<Integer> {
     }
 
     @Override
+    public Integer visitIdentifierAtom(CNFParser.IdentifierAtomContext ctx) {
+        return pool.idByName(ctx.toString());
+    }
+
+    @Override
     public Integer visitNot(CNFParser.NotContext ctx) {
-        Integer node = visitChildren(ctx.cnf());
+        Integer node = visit(ctx.cnf());
         Integer additionalVar = pool.idByName("@" + (++currentNewVarNumber));
 
         disjunctions.add(new Disjunction(-additionalVar, -node));
@@ -33,8 +38,8 @@ public class FormulaVisitor extends CNFBaseVisitor<Integer> {
 
     @Override
     public Integer visitConjunction(CNFParser.ConjunctionContext ctx) {
-        Integer left = visitChildren(ctx.cnf(0));
-        Integer right = visitChildren(ctx.cnf(1));
+        Integer left = visit(ctx.cnf(0));
+        Integer right = visit(ctx.cnf(1));
         Integer additionalVar = pool.idByName("@" + (++currentNewVarNumber));
 
         disjunctions.add(new Disjunction(additionalVar, -left, -right));
@@ -46,8 +51,8 @@ public class FormulaVisitor extends CNFBaseVisitor<Integer> {
 
     @Override
     public Integer visitDisjunction(CNFParser.DisjunctionContext ctx) {
-        Integer left = visitChildren(ctx.cnf(0));
-        Integer right = visitChildren(ctx.cnf(1));
+        Integer left = visit(ctx.cnf(0));
+        Integer right = visit(ctx.cnf(1));
         Integer additionalVar = pool.idByName("@" + (++currentNewVarNumber));
 
         disjunctions.add(new Disjunction(-additionalVar, left, right));
@@ -59,8 +64,8 @@ public class FormulaVisitor extends CNFBaseVisitor<Integer> {
 
     @Override
     public Integer visitImplication(CNFParser.ImplicationContext ctx) {
-        Integer left = visitChildren(ctx.cnf(0));
-        Integer right = visitChildren(ctx.cnf(1));
+        Integer left = visit(ctx.cnf(0));
+        Integer right = visit(ctx.cnf(1));
         Integer additionalVar = pool.idByName("@" + (++currentNewVarNumber));
 
         disjunctions.add(new Disjunction(-additionalVar, -left, right));

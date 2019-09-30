@@ -13,18 +13,9 @@ import org.junit.Test;
 import java.util.ArrayList;
 
 public class FormulaVisitorTest {
-    private CNF getCNF(String str) {
-        CharStream inputStream = CharStreams.fromString(str);
-        CNFLexer markupLexer = new CNFLexer(inputStream);
-        CommonTokenStream commonTokenStream = new CommonTokenStream(markupLexer);
-        CNFParser markupParser = new CNFParser(commonTokenStream);
-        FormulaVisitor visitor = new FormulaVisitor();
-        return visitor.parse(markupParser.cnf());
-    }
-
     @Test
     public void parseDisjunctionTest() {
-        CNF cnf = getCNF("p1 v p2");
+        CNF cnf = TseytinTransformation.transform("p1 v p2");
 
         CNF expected = new CNF(new ArrayList<Disjunction>() {{
             add(new Disjunction(-3, 1, 2));
@@ -37,7 +28,7 @@ public class FormulaVisitorTest {
 
     @Test
     public void parseConjunctionTest() {
-        CNF cnf = getCNF("p1 ^ p2");
+        CNF cnf = TseytinTransformation.transform("p1 ^ p2");
 
         CNF expected = new CNF(new ArrayList<Disjunction>() {{
             add(new Disjunction(3, -1, -2));
@@ -50,7 +41,7 @@ public class FormulaVisitorTest {
 
     @Test
     public void parseImplicationTest() {
-        CNF cnf = getCNF("p1 -> p2");
+        CNF cnf = TseytinTransformation.transform("p1 -> p2");
 
         CNF expected = new CNF(new ArrayList<Disjunction>() {{
             add(new Disjunction(-3, -1, 2));
@@ -63,7 +54,7 @@ public class FormulaVisitorTest {
 
     @Test
     public void parseNotTest() {
-        CNF cnf = getCNF("!p1");
+        CNF cnf = TseytinTransformation.transform("!p1");
 
         CNF expected = new CNF(new ArrayList<Disjunction>() {{
             add(new Disjunction(-1));
@@ -73,7 +64,7 @@ public class FormulaVisitorTest {
 
     @Test
     public void parseTaskFromClassTest() {
-        CNF cnf = getCNF("!(q1 ^ (q2 v !q3))");
+        CNF cnf = TseytinTransformation.transform("!(q1 ^ (q2 v !q3))");
 
         CNF expected = new CNF(new ArrayList<Disjunction>() {{
             add(new Disjunction(-4, 2, -3));

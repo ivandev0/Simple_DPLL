@@ -42,4 +42,15 @@ public class DPLLTest {
 
         Assert.assertEquals(new Model(-2, 3), DPLL.solve(cnf));
     }
+
+    @Test
+    public void unsat() {
+        CNF cnf = DimacsReader.readFromString(
+                "p cnf 2\n" +
+                "1 0\n" +
+                "-1 0"
+        );
+
+        Assert.assertNull(DPLL.solve(cnf));
+    }
 }

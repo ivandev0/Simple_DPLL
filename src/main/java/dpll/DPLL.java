@@ -1,3 +1,5 @@
+package dpll;
+
 import cnf.CNF;
 import resolution.Resolution;
 
@@ -99,3 +101,4 @@ public class DPLL {
                 .get();
     }
 }
+

@@ -1,4 +1,6 @@
 import cnf.CNF;
+import dpll.DPLL;
+import dpll.Model;
 import org.junit.Assert;
 import org.junit.Test;
 import reader.DimacsReader;

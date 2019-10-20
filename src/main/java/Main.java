@@ -1,4 +1,5 @@
 import cnf.CNF;
+import dpll.DPLL;
 import reader.DimacsReader;
 import tseytin.TseytinTransformation;
 

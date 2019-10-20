@@ -7,9 +7,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 public class DimacsReader {
     public static CNF readFromFile(File file) throws IOException {
@@ -42,14 +40,14 @@ public class DimacsReader {
                 continue;
             }
 
-            Disjunction clause = new Disjunction();
+            Set<Integer> clause = new HashSet<>();
             StringTokenizer st = new StringTokenizer(line);
             while (st.hasMoreTokens()) {
                 int literal = Integer.parseInt(st.nextToken());
                 if (literal != 0) {
-                    clause.addLiteral(literal);
+                    clause.add(literal);
                 } else {
-                    clauses.add(clause);
+                    clauses.add(new Disjunction(clause));
                     break;
                 }
             }

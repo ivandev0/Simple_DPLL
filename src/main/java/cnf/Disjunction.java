@@ -1,31 +1,37 @@
 package cnf;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Disjunction {
-    public List<Integer> values;
+    public Set<Integer> values, original;
     boolean isEmpty = false;
 
     public Disjunction(Integer... values) {
-        this.values = Arrays.asList(values);
+        this.values = new HashSet<>(Arrays.asList(values));
+        this.original = new HashSet<>(this.values);
+    }
+
+    public Disjunction(Set<Integer> values) {
+        this.values = new HashSet<>(values);
+        this.original = new HashSet<>(this.values);
     }
 
     public Disjunction(Disjunction other) {
-        this.values = new ArrayList<>(other.values);
+        this.values = new HashSet<>(other.values);
+        if (other.isNotSynthetic()) {
+            this.original = new HashSet<>(other.original);
+        }
         this.isEmpty = other.isEmpty;
     }
 
-    public Disjunction(Integer singleLiteral) {
-        this.values = new ArrayList<>();
-        this.values.add(singleLiteral);
+    public Disjunction setOriginalToNull() {
+        original = null;
+        return this;
     }
 
-    public Disjunction() {
-        values = new ArrayList<>();
+    public boolean isNotSynthetic() {
+        return original != null;
     }
 
     public boolean hasUnitSize() {
@@ -33,7 +39,7 @@ public class Disjunction {
     }
 
     public Integer getFirst() {
-        return values.get(0);
+        return values.iterator().next();
     }
 
     public boolean contains(int literal) {

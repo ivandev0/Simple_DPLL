@@ -2,7 +2,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class Model {
-    Set<Integer> model;
+    private Set<Integer> model;
 
     public Model() {
         model = new TreeSet<>();

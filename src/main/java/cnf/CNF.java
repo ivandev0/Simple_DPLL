@@ -18,12 +18,16 @@ public class CNF {
     }
 
     public CNF addSingleLiteralClause(Integer literal) {
-        clauses.add(new Disjunction(literal));
+        clauses.add(0, new Disjunction(literal).setOriginalToNull());
         return this;
     }
 
     public List<Disjunction> getAllDisjunctions() {
         return clauses;
+    }
+
+    public Disjunction getFirstDisjunctionWithLiteral(Integer literal) {
+        return clauses.stream().filter(dis -> dis.contains(literal) && dis.isNotSynthetic()).findFirst().get();
     }
 
     public CNF removeAllDisjunctionsWithLiteral(int literal) {

@@ -20,7 +20,7 @@ public class DPLL {
             model = model.addInterpretation(unitLiteral);
 
             if (cnf.containsEmptyDisjunction()) {
-                res.setNewEntry(unmodifiedCnf.getFirstDisjunctionWithLiteral(unitLiteral).original);
+                res.setNewEntry(unmodifiedCnf.getFirstDisjunctionWithLiteral(-unitLiteral).original);
                 return null;
             }
         }
@@ -28,6 +28,10 @@ public class DPLL {
         for (Integer pureLiteral : cnf.getPureLiterals()) {
             cnf = eliminatePureLiteral(cnf, pureLiteral);
             model = model.addInterpretation(pureLiteral);
+
+            if (cnf.containsEmptyDisjunction() || cnf.isEmpty()) {
+                res.setNewEntry(unmodifiedCnf.getFirstDisjunctionWithLiteral(pureLiteral).original);
+            }
         }
 
         if (cnf.isEmpty()) return model;

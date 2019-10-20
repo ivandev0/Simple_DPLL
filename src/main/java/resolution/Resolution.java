@@ -29,9 +29,12 @@ public class Resolution {
 
     public void combineParents(Integer complementaryLiteral) {
         Set<Integer> leftEntry = new Disjunction(leftParent.entry).values;
-        leftEntry.removeIf(num -> num.equals(complementaryLiteral) || num.equals(-complementaryLiteral));
         Set<Integer> rightEntry = new Disjunction(rightParent.entry).values;
-        rightEntry.removeIf(num -> num.equals(complementaryLiteral) || num.equals(-complementaryLiteral));
+        if ((leftEntry.contains(complementaryLiteral) && rightEntry.contains(-complementaryLiteral)) ||
+                (leftEntry.contains(-complementaryLiteral) && rightEntry.contains(complementaryLiteral))) {
+            leftEntry.removeIf(num -> num.equals(complementaryLiteral) || num.equals(-complementaryLiteral));
+            rightEntry.removeIf(num -> num.equals(complementaryLiteral) || num.equals(-complementaryLiteral));
+        }
         leftEntry.addAll(rightEntry);
         entry = new HashSet<>(leftEntry);
     }

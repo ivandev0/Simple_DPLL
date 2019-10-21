@@ -81,4 +81,21 @@ public class ResolutionTest {
         Assert.assertEquals(new Model(1, 2, 3, 4), DPLL.solveWithResolution(cnf, res));
         Assert.assertEquals(new HashSet<Integer>() {{ add(2); add(3); }}, res.entry);
     }
+
+    @Test
+    public void resolutionWithInstantUnit() {
+        CNF cnf = DimacsReader.readFromString(
+                "p cnf 6\n" +
+                        "1 -2 0\n" +
+                        "-1 -3 0\n" +
+                        "2 0\n" +
+                        "-2 3 0\n" +
+                        "2 4 0\n" +
+                        "-4 0"
+        );
+
+        Resolution res = new Resolution(0);
+        Assert.assertNull(DPLL.solveWithResolution(cnf, res));
+        Assert.assertEquals(0, res.entry.size());
+    }
 }

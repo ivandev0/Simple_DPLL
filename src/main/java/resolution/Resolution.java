@@ -17,14 +17,20 @@ public class Resolution {
         this.entry = new HashSet<>(literals);
     }
 
-    public Resolution addLeftParent(Resolution resolution) {
+    public void addLeftParent(Resolution resolution) {
         leftParent = resolution;
-        return this;
     }
 
-    public Resolution addRightParent(Resolution resolution) {
+    public void addRightParent(Resolution resolution) {
         rightParent = resolution;
-        return this;
+    }
+
+    public Resolution getLeftParent() {
+        return leftParent;
+    }
+
+    public Resolution getRightParent() {
+        return rightParent;
     }
 
     public void combineParents(Integer complementaryLiteral) {

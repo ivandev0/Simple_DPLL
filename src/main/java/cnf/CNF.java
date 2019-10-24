@@ -6,14 +6,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class CNF {
-    public static CNF TRUE = new CNF(new ArrayList<Disjunction>() {{
-        add(SingleLiteralDisjunction.TRUE);
-    }});
-    public static CNF FALSE = new CNF(new ArrayList<Disjunction>() {{
-        add(SingleLiteralDisjunction.FALSE);
-    }});
+    public static CNF TRUE = new CNF(SingleLiteralDisjunction.TRUE);
+    public static CNF FALSE = new CNF(SingleLiteralDisjunction.FALSE);
 
     private List<Disjunction> clauses;
+
+    public CNF(Disjunction... clauses) {
+        this(Arrays.asList(clauses));
+    }
 
     public CNF(List<Disjunction> clauses) {
         this.clauses = clauses;

@@ -1,48 +1,51 @@
 package cnf;
 
+import resolution.Resolution;
+import util.CombineUtils;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Disjunction {
-    public Set<Integer> values, original;
+    public Set<Integer> values;
+    public Resolution res;
     boolean isEmpty = false;
 
     public Disjunction(Integer... values) {
-        this.values = new HashSet<>(Arrays.asList(values));
-        this.original = new HashSet<>(this.values);
+        this(new HashSet<>(Arrays.asList(values)));
     }
 
     public Disjunction(Set<Integer> values) {
         this.values = new HashSet<>(values);
-        this.original = new HashSet<>(this.values);
+        res = new Resolution(values);
     }
 
-    public Disjunction(Disjunction other) {
+    Disjunction(Disjunction other) {
         this.values = new HashSet<>(other.values);
         if (other.isNotSynthetic()) {
-            this.original = new HashSet<>(other.original);
+            this.res = other.res;
         }
         this.isEmpty = other.isEmpty;
     }
 
-    public Disjunction setOriginalToNull() {
-        original = null;
+    public Disjunction setAsSynthetic() {
+        res = null;
         return this;
     }
 
-    public boolean isNotSynthetic() {
-        return original != null;
+    boolean isNotSynthetic() {
+        return res != null;
     }
 
     public boolean hasUnitSize() {
         return values.size() == 1;
     }
 
-    public Integer getFirst() {
+    Integer getFirst() {
         return values.iterator().next();
     }
 
-    public boolean contains(int literal) {
+    boolean contains(int literal) {
         return values.contains(literal);
     }
 
@@ -50,11 +53,19 @@ public class Disjunction {
         values.add(literal);
     }
 
-    public void remove(Integer literal) {
+    void remove(Integer literal) {
         values.remove(literal);
         if (values.size() == 0) {
             isEmpty = true;
         }
+    }
+
+    Disjunction combineByLiteral(Disjunction other, Integer literal) {
+        Set<Integer> newValues = CombineUtils.combineBy(this.res.entry, other.res.entry, literal);
+        Disjunction result = new Disjunction(newValues);
+        result.res.addRightParent(this.res);
+        result.res.addLeftParent(other.res);
+        return result;
     }
 
     @Override

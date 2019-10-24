@@ -1,12 +1,14 @@
 package dpll;
 
+import cnf.SingleLiteralDisjunction;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class Model {
     private Set<Integer> model;
 
-    public Model() {
+    Model() {
         model = new TreeSet<>();
     }
 
@@ -14,13 +16,13 @@ public class Model {
         this.model = new TreeSet<>(Arrays.asList(model));
     }
 
-    public Model(Set<Integer> model) {
+    Model(Set<Integer> model) {
         this.model = new TreeSet<>(model);
     }
 
-    public Model addInterpretation(int literal) {
+    Model addInterpretation(SingleLiteralDisjunction literal) {
         Model newModel = new Model(model);
-        newModel.model.add(literal);
+        newModel.model.add(literal.get());
         return newModel;
     }
 

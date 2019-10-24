@@ -1,6 +1,7 @@
 package dpll;
 
 import cnf.CNF;
+import cnf.SingleLiteralDisjunction;
 import resolution.Resolution;
 
 import java.util.Comparator;
@@ -10,58 +11,40 @@ public class DPLL {
         return solve(cnf, new Model());
     }
 
-    public static Model solveWithResolution(CNF cnf, Resolution res) {
-        return solveWithResolution(cnf, new Model(), res);
-    }
-
-    private static Model solveWithResolution(CNF cnf, Model model, Resolution res) {
-        CNF unmodifiedCnf = new CNF(cnf);
-        if (cnf.getUnitLiterals().size() != 0) {
-            Integer unitLiteral = cnf.getUnitLiterals().get(0);
+    public static Resolution solveWithResolution(CNF cnf) {
+        while (cnf.getUnitLiterals().size() != 0) {
+            SingleLiteralDisjunction unitLiteral = cnf.getUnitLiterals().get(0);
             cnf = unitPropagate(cnf, unitLiteral);
-            model = model.addInterpretation(unitLiteral);
-
-            if (cnf.containsEmptyDisjunction()) {
-                res.setNewEntry(unmodifiedCnf.getFirstDisjunctionWithLiteral(-unitLiteral).original);
-                return null;
-            }
         }
 
-        for (Integer pureLiteral : cnf.getPureLiterals()) {
+        for (SingleLiteralDisjunction pureLiteral : cnf.getPureLiterals()) {
             cnf = eliminatePureLiteral(cnf, pureLiteral);
-            model = model.addInterpretation(pureLiteral);
-
-            if (cnf.containsEmptyDisjunction() || cnf.isEmpty()) {
-                res.setNewEntry(unmodifiedCnf.getFirstDisjunctionWithLiteral(pureLiteral).original);
-            }
         }
 
-        if (cnf.isEmpty()) return model;
-        if (cnf.containsEmptyDisjunction()) return null;
+        if (cnf.isEmpty()) return null;
+        if (cnf.containsEmptyDisjunction()) return cnf.getAllDisjunctions().get(0).res;
 
-        int literal = chooseLiteral(cnf);
+        Resolution result = new Resolution(0);
+        SingleLiteralDisjunction literal = chooseLiteral(cnf);
 
         CNF cnfWithLiteralTrue = new CNF(cnf).addSingleLiteralClause(literal);
-        Resolution left = new Resolution(-literal);
-        res.addLeftParent(left);
-        Model resultLeft = solveWithResolution(cnfWithLiteralTrue, model.addInterpretation(literal), left);
+        result.addLeftParent(solveWithResolution(cnfWithLiteralTrue));
 
-        CNF cnfWithLiteralFalse = new CNF(cnf).addSingleLiteralClause(-literal);
-        Resolution right = new Resolution(literal);
-        res.addRightParent(right);
-        Model resultRight = solveWithResolution(cnfWithLiteralFalse, model.addInterpretation(-literal), right);
+        CNF cnfWithLiteralFalse = new CNF(cnf).addSingleLiteralClause(literal.negate());
+        result.addRightParent(solveWithResolution(cnfWithLiteralFalse));
 
-        res.combineParents(literal);
-        return resultLeft != null ? resultLeft : resultRight;
+        if (result.getLeftParent() == null || result.getRightParent() == null) return null;
+        result.setEntryFromParentsAndRemoveLiteral(literal);
+        return result;
     }
 
     private static Model solve(CNF cnf, Model model) {
-        for (Integer unitLiteral: cnf.getUnitLiterals()) {
+        for (SingleLiteralDisjunction unitLiteral: cnf.getUnitLiterals()) {
             cnf = unitPropagate(cnf, unitLiteral);
             model = model.addInterpretation(unitLiteral);
         }
 
-        for (Integer pureLiteral : cnf.getPureLiterals()) {
+        for (SingleLiteralDisjunction pureLiteral : cnf.getPureLiterals()) {
             cnf = eliminatePureLiteral(cnf, pureLiteral);
             model = model.addInterpretation(pureLiteral);
         }
@@ -73,7 +56,7 @@ public class DPLL {
             return null;
         }
 
-        int literal = chooseLiteral(cnf);
+        SingleLiteralDisjunction literal = chooseLiteral(cnf);
 
         CNF cnfWithLiteralTrue = new CNF(cnf).addSingleLiteralClause(literal);
         Model result = solve(cnfWithLiteralTrue, model.addInterpretation(literal));
@@ -81,24 +64,27 @@ public class DPLL {
             return result;
         }
 
-        CNF cnfWithLiteralFalse = new CNF(cnf).addSingleLiteralClause(-literal);
-        return solve(cnfWithLiteralFalse, model.addInterpretation(-literal));
+        CNF cnfWithLiteralFalse = new CNF(cnf).addSingleLiteralClause(literal.negate());
+        return solve(cnfWithLiteralFalse, model.addInterpretation(literal.negate()));
     }
 
-    private static CNF unitPropagate(CNF cnf, int literal) {
-        return eliminatePureLiteral(new CNF(cnf).removeLiteralInAllDisjunctions(-literal), literal);
+    public static CNF unitPropagate(CNF cnf, SingleLiteralDisjunction literal) {
+        return eliminatePureLiteral(new CNF(cnf).removeLiteralInAllDisjunctions(literal.negate()), literal);
     }
 
-    private static CNF eliminatePureLiteral(CNF cnf, int literal) {
+    private static CNF eliminatePureLiteral(CNF cnf, SingleLiteralDisjunction literal) {
         return new CNF(cnf).removeAllDisjunctionsWithLiteral(literal);
     }
 
-    private static Integer chooseLiteral(CNF cnf) {
-        return cnf.getAllDisjunctions().stream()
+    private static SingleLiteralDisjunction chooseLiteral(CNF cnf) {
+        if (cnf.getUnitLiterals().size() != 0) {
+            return cnf.getUnitLiterals().get(0);
+        }
+        int literal = cnf.getAllDisjunctions().stream()
                 .flatMap(disjunction -> disjunction.values.stream())
                 .map(Math::abs)
                 .min(Comparator.naturalOrder())
                 .get();
+        return new SingleLiteralDisjunction(literal).setAsSynthetic();
     }
 }
-

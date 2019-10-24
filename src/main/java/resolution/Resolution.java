@@ -1,6 +1,7 @@
 package resolution;
 
-import cnf.Disjunction;
+import cnf.SingleLiteralDisjunction;
+import util.CombineUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,6 +12,10 @@ public class Resolution {
 
     public Resolution(Integer entry) {
         this.entry = new HashSet<Integer>() {{ add(entry); }};
+    }
+
+    public Resolution(Set<Integer> literals) {
+        this.entry = new HashSet<>(literals);
     }
 
     public void setNewEntry(Set<Integer> literals) {
@@ -33,16 +38,8 @@ public class Resolution {
         return rightParent;
     }
 
-    public void combineParents(Integer complementaryLiteral) {
-        Set<Integer> leftEntry = new Disjunction(leftParent.entry).values;
-        Set<Integer> rightEntry = new Disjunction(rightParent.entry).values;
-        if ((leftEntry.contains(complementaryLiteral) && rightEntry.contains(-complementaryLiteral)) ||
-                (leftEntry.contains(-complementaryLiteral) && rightEntry.contains(complementaryLiteral))) {
-            leftEntry.removeIf(num -> num.equals(complementaryLiteral) || num.equals(-complementaryLiteral));
-            rightEntry.removeIf(num -> num.equals(complementaryLiteral) || num.equals(-complementaryLiteral));
-        }
-        leftEntry.addAll(rightEntry);
-        entry = new HashSet<>(leftEntry);
+    public void setEntryFromParentsAndRemoveLiteral(SingleLiteralDisjunction complementaryLiteral) {
+        entry = CombineUtils.combineBy(leftParent.entry, rightParent.entry, complementaryLiteral.get());
     }
 
     @Override

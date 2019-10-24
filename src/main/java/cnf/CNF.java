@@ -1,9 +1,6 @@
 package cnf;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CNF {
@@ -17,8 +14,10 @@ public class CNF {
         this.clauses = toCopy.clauses.stream().map(Disjunction::new).collect(Collectors.toList());
     }
 
-    public CNF addSingleLiteralClause(Integer literal) {
-        clauses.add(0, new Disjunction(literal).setOriginalToNull());
+    public CNF addSingleLiteralClause(SingleLiteralDisjunction literal) {
+        if (!clauses.contains(literal)) {
+            clauses.add(0, literal);
+        }
         return this;
     }
 
@@ -30,13 +29,22 @@ public class CNF {
         return clauses.stream().filter(dis -> dis.contains(literal) && dis.isNotSynthetic()).findFirst().get();
     }
 
-    public CNF removeAllDisjunctionsWithLiteral(int literal) {
-        clauses.removeIf(disjunction -> disjunction.contains(literal));
+    public CNF removeAllDisjunctionsWithLiteral(SingleLiteralDisjunction literal) {
+        clauses.removeIf(disjunction -> disjunction.contains(literal.get()));
         return this;
     }
 
-    public CNF removeLiteralInAllDisjunctions(int literal) {
-        clauses.forEach(disjunction -> disjunction.remove(literal));
+    public CNF removeLiteralInAllDisjunctions(SingleLiteralDisjunction unitDisjunction) {
+        if (unitDisjunction.isNotSynthetic()) {
+            clauses.forEach(disjunction -> {
+                if (disjunction.contains(unitDisjunction.get())) {
+                    disjunction.res = disjunction.combineByLiteral(unitDisjunction, unitDisjunction.get()).res;
+                    disjunction.remove(unitDisjunction.get());
+                }
+            });
+        } else {
+            clauses.forEach(disjunction -> disjunction.remove(unitDisjunction.get()));
+        }
         return this;
     }
 
@@ -48,22 +56,22 @@ public class CNF {
         return clauses.stream().anyMatch(disjunction -> disjunction.isEmpty);
     }
 
-    public List<Integer> getUnitLiterals() {
+    public List<SingleLiteralDisjunction> getUnitLiterals() {
         return clauses.stream()
                 .filter(Disjunction::hasUnitSize)
-                .map(Disjunction::getFirst)
+                .map(SingleLiteralDisjunction::new)
                 .collect(Collectors.toList());
     }
 
-    public List<Integer> getPureLiterals() {
+    public List<SingleLiteralDisjunction> getPureLiterals() {
         Set<Integer> literalsList = clauses.stream()
                 .flatMap(disjunction -> disjunction.values.stream())
                 .collect(Collectors.toSet());
 
-        List<Integer> result = new ArrayList<>();
+        List<SingleLiteralDisjunction> result = new ArrayList<>();
         for (Integer literal : literalsList) {
             if (!literalsList.contains(-literal)) {
-                result.add(literal);
+                result.add(new SingleLiteralDisjunction(literal));
             }
         }
 

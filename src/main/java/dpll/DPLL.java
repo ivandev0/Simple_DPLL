@@ -68,7 +68,7 @@ public class DPLL {
         return solve(cnfWithLiteralFalse, model.addInterpretation(literal.negate()));
     }
 
-    public static CNF unitPropagate(CNF cnf, SingleLiteralDisjunction literal) {
+    private static CNF unitPropagate(CNF cnf, SingleLiteralDisjunction literal) {
         return eliminatePureLiteral(new CNF(cnf).removeLiteralInAllDisjunctions(literal.negate()), literal);
     }
 

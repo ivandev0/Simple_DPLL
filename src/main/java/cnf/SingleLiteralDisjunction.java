@@ -1,8 +1,8 @@
 package cnf;
 
 public class SingleLiteralDisjunction extends Disjunction {
-    public static class TRUE {}
-    public static class FALSE {}
+    static SingleLiteralDisjunction TRUE = new SingleLiteralDisjunction(Integer.MAX_VALUE);
+    static SingleLiteralDisjunction FALSE = new SingleLiteralDisjunction(Integer.MIN_VALUE);
 
     private int literal;
 
@@ -16,7 +16,7 @@ public class SingleLiteralDisjunction extends Disjunction {
         if (!toCopy.hasUnitSize()) {
             throw new UnsupportedOperationException("SingleLiteralClause must contain single literal");
         }
-        literal = toCopy.getFirst();
+        literal = toCopy.getFirst().get();
     }
 
     public int get() {
@@ -40,7 +40,9 @@ public class SingleLiteralDisjunction extends Disjunction {
     }
 
     @Override
-    public void addLiteral(Integer literal) {
-        throw new UnsupportedOperationException("SingleLiteralDisjunction must contain only one literal");
+    public String toString() {
+        if (this == FALSE) return "FALSE";
+        if (this == TRUE) return "TRUE";
+        return super.toString();
     }
 }

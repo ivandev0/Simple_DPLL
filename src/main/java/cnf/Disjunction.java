@@ -41,20 +41,40 @@ public class Disjunction {
         return values.size() == 1;
     }
 
-    Integer getFirst() {
-        return values.iterator().next();
+    SingleLiteralDisjunction getFirst() {
+        return new SingleLiteralDisjunction(values.iterator().next());
     }
 
-    boolean contains(int literal) {
-        return values.contains(literal);
+    boolean contains(SingleLiteralDisjunction literal) {
+        return values.contains(literal.get());
     }
 
-    public void addLiteral(Integer literal) {
-        values.add(literal);
+    boolean isEqualTo(Set<Integer> clause) {
+        return this.values.equals(clause);
     }
 
-    void remove(Integer literal) {
-        values.remove(literal);
+    Disjunction disjunction(Disjunction other) {
+        if (this.contains(SingleLiteralDisjunction.TRUE) || other.contains(SingleLiteralDisjunction.TRUE)) {
+            return SingleLiteralDisjunction.TRUE;
+        }
+
+        if (CombineUtils.getComplementaryLiteral(this.values, other.values) != null) return SingleLiteralDisjunction.FALSE;
+
+        Disjunction result = new Disjunction(this);
+        result.values.addAll(other.values);
+        result.remove(SingleLiteralDisjunction.FALSE);
+        return result;
+    }
+
+    Disjunction conjunctionWithComplementaryLiteral(SingleLiteralDisjunction complementaryLiteral) {
+        Disjunction result = new Disjunction(this);
+        result.remove(complementaryLiteral.negate());
+        result.values.add(complementaryLiteral.get());
+        return result;
+    }
+
+    void remove(SingleLiteralDisjunction literal) {
+        values.remove(literal.get());
         if (values.size() == 0) {
             isEmpty = true;
         }

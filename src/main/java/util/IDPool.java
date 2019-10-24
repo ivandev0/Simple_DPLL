@@ -22,4 +22,8 @@ public class IDPool {
         }
         return null;
     }
+
+    public int size() {
+        return pool.size();
+    }
 }

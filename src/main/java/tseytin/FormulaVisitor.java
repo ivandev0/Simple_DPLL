@@ -11,10 +11,12 @@ import java.util.List;
 
 public class FormulaVisitor extends CNFBaseVisitor<Integer> {
     private List<Disjunction> disjunctions;
-    private IDPool pool = new IDPool();
+    private IDPool pool;
     private Integer currentNewVarNumber = 0;
 
-    public CNF parse(CNFParser.CnfContext ctx) {
+    CNF parse(CNFParser.CnfContext ctx, IDPool pool) {
+        this.pool = pool;
+        currentNewVarNumber = pool.size();
         disjunctions = new ArrayList<>();
         int mainVar = visit(ctx);
         disjunctions.add(new Disjunction(mainVar));
@@ -23,7 +25,7 @@ public class FormulaVisitor extends CNFBaseVisitor<Integer> {
 
     @Override
     public Integer visitIdentifierAtom(CNFParser.IdentifierAtomContext ctx) {
-        return pool.idByName(ctx.toString());
+        return pool.idByName(ctx.IDENTIFIER().toString());
     }
 
     @Override

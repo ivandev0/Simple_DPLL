@@ -12,11 +12,9 @@ import java.util.List;
 public class FormulaVisitor extends CNFBaseVisitor<Integer> {
     private List<Disjunction> disjunctions;
     private IDPool pool;
-    private Integer currentNewVarNumber = 0;
 
     CNF parse(CNFParser.CnfContext ctx, IDPool pool) {
         this.pool = pool;
-        currentNewVarNumber = pool.size();
         disjunctions = new ArrayList<>();
         int mainVar = visit(ctx);
         disjunctions.add(new Disjunction(mainVar));
@@ -38,7 +36,7 @@ public class FormulaVisitor extends CNFBaseVisitor<Integer> {
     public Integer visitConjunction(CNFParser.ConjunctionContext ctx) {
         Integer left = visit(ctx.cnf(0));
         Integer right = visit(ctx.cnf(1));
-        Integer additionalVar = pool.idByName("@" + (++currentNewVarNumber));
+        Integer additionalVar = pool.getTempVar();
 
         disjunctions.add(new Disjunction(additionalVar, -left, -right));
         disjunctions.add(new Disjunction(left, -additionalVar));
@@ -51,7 +49,7 @@ public class FormulaVisitor extends CNFBaseVisitor<Integer> {
     public Integer visitDisjunction(CNFParser.DisjunctionContext ctx) {
         Integer left = visit(ctx.cnf(0));
         Integer right = visit(ctx.cnf(1));
-        Integer additionalVar = pool.idByName("@" + (++currentNewVarNumber));
+        Integer additionalVar = pool.getTempVar();
 
         disjunctions.add(new Disjunction(-additionalVar, left, right));
         disjunctions.add(new Disjunction(-left, additionalVar));
@@ -64,11 +62,27 @@ public class FormulaVisitor extends CNFBaseVisitor<Integer> {
     public Integer visitImplication(CNFParser.ImplicationContext ctx) {
         Integer left = visit(ctx.cnf(0));
         Integer right = visit(ctx.cnf(1));
-        Integer additionalVar = pool.idByName("@" + (++currentNewVarNumber));
+        Integer additionalVar = pool.getTempVar();
 
         disjunctions.add(new Disjunction(-additionalVar, -left, right));
         disjunctions.add(new Disjunction(right, additionalVar));
         disjunctions.add(new Disjunction(-left, additionalVar));
+
+        return additionalVar;
+    }
+
+    @Override
+    public Integer visitEquivalence(CNFParser.EquivalenceContext ctx) {
+        Integer left = visit(ctx.cnf(0));
+        Integer right = visit(ctx.cnf(1));
+        Integer additionalVar = pool.getTempVar();
+
+        disjunctions.add(new Disjunction(additionalVar, left, -right));
+        disjunctions.add(new Disjunction(additionalVar, -left, right));
+        disjunctions.add(new Disjunction(additionalVar, -left, -right));
+        disjunctions.add(new Disjunction(-additionalVar, left, right));
+        disjunctions.add(new Disjunction(-additionalVar, left, -right));
+        disjunctions.add(new Disjunction(-additionalVar, -left, right));
 
         return additionalVar;
     }

@@ -17,7 +17,8 @@ public class CNFParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, IDENTIFIER=7, WS=8;
+		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, IDENTIFIER=8, 
+		WS=9;
 	public static final int
 		RULE_cnf = 0;
 	private static String[] makeRuleNames() {
@@ -29,13 +30,13 @@ public class CNFParser extends Parser {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, "'('", "')'", "'!'", "'v'", "'^'", "'->'"
+			null, "'('", "')'", "'!'", "'v'", "'^'", "'->'", "'<->'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, null, null, null, null, null, null, "IDENTIFIER", "WS"
+			null, null, null, null, null, null, null, null, "IDENTIFIER", "WS"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -108,6 +109,20 @@ public class CNFParser extends Parser {
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof CNFVisitor ) return ((CNFVisitor<? extends T>)visitor).visitNot(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class EquivalenceContext extends CnfContext {
+		public List<CnfContext> cnf() {
+			return getRuleContexts(CnfContext.class);
+		}
+		public CnfContext cnf(int i) {
+			return getRuleContext(CnfContext.class,i);
+		}
+		public EquivalenceContext(CnfContext ctx) { copyFrom(ctx); }
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof CNFVisitor ) return ((CNFVisitor<? extends T>)visitor).visitEquivalence(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -223,14 +238,14 @@ public class CNFParser extends Parser {
 				setState(8);
 				match(T__2);
 				setState(9);
-				cnf(4);
+				cnf(5);
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
 			_ctx.stop = _input.LT(-1);
-			setState(23);
+			setState(26);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,2,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
@@ -238,7 +253,7 @@ public class CNFParser extends Parser {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
 					{
-					setState(21);
+					setState(24);
 					_errHandler.sync(this);
 					switch ( getInterpreter().adaptivePredict(_input,1,_ctx) ) {
 					case 1:
@@ -246,11 +261,11 @@ public class CNFParser extends Parser {
 						_localctx = new DisjunctionContext(new CnfContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_cnf);
 						setState(12);
-						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");
+						if (!(precpred(_ctx, 4))) throw new FailedPredicateException(this, "precpred(_ctx, 4)");
 						setState(13);
 						match(T__3);
 						setState(14);
-						cnf(4);
+						cnf(5);
 						}
 						break;
 					case 2:
@@ -258,11 +273,11 @@ public class CNFParser extends Parser {
 						_localctx = new ConjunctionContext(new CnfContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_cnf);
 						setState(15);
-						if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
+						if (!(precpred(_ctx, 3))) throw new FailedPredicateException(this, "precpred(_ctx, 3)");
 						setState(16);
 						match(T__4);
 						setState(17);
-						cnf(3);
+						cnf(4);
 						}
 						break;
 					case 3:
@@ -270,17 +285,29 @@ public class CNFParser extends Parser {
 						_localctx = new ImplicationContext(new CnfContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_cnf);
 						setState(18);
-						if (!(precpred(_ctx, 1))) throw new FailedPredicateException(this, "precpred(_ctx, 1)");
+						if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
 						setState(19);
 						match(T__5);
 						setState(20);
+						cnf(3);
+						}
+						break;
+					case 4:
+						{
+						_localctx = new EquivalenceContext(new CnfContext(_parentctx, _parentState));
+						pushNewRecursionContext(_localctx, _startState, RULE_cnf);
+						setState(21);
+						if (!(precpred(_ctx, 1))) throw new FailedPredicateException(this, "precpred(_ctx, 1)");
+						setState(22);
+						match(T__6);
+						setState(23);
 						cnf(2);
 						}
 						break;
 					}
 					} 
 				}
-				setState(25);
+				setState(28);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,2,_ctx);
 			}
@@ -307,25 +334,28 @@ public class CNFParser extends Parser {
 	private boolean cnf_sempred(CnfContext _localctx, int predIndex) {
 		switch (predIndex) {
 		case 0:
-			return precpred(_ctx, 3);
+			return precpred(_ctx, 4);
 		case 1:
-			return precpred(_ctx, 2);
+			return precpred(_ctx, 3);
 		case 2:
+			return precpred(_ctx, 2);
+		case 3:
 			return precpred(_ctx, 1);
 		}
 		return true;
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\n\35\4\2\t\2\3\2"+
-		"\3\2\3\2\3\2\3\2\3\2\3\2\3\2\5\2\r\n\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2"+
-		"\3\2\7\2\30\n\2\f\2\16\2\33\13\2\3\2\2\3\2\3\2\2\2\2 \2\f\3\2\2\2\4\5"+
-		"\b\2\1\2\5\r\7\t\2\2\6\7\7\3\2\2\7\b\5\2\2\2\b\t\7\4\2\2\t\r\3\2\2\2\n"+
-		"\13\7\5\2\2\13\r\5\2\2\6\f\4\3\2\2\2\f\6\3\2\2\2\f\n\3\2\2\2\r\31\3\2"+
-		"\2\2\16\17\f\5\2\2\17\20\7\6\2\2\20\30\5\2\2\6\21\22\f\4\2\2\22\23\7\7"+
-		"\2\2\23\30\5\2\2\5\24\25\f\3\2\2\25\26\7\b\2\2\26\30\5\2\2\4\27\16\3\2"+
-		"\2\2\27\21\3\2\2\2\27\24\3\2\2\2\30\33\3\2\2\2\31\27\3\2\2\2\31\32\3\2"+
-		"\2\2\32\3\3\2\2\2\33\31\3\2\2\2\5\f\27\31";
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\13 \4\2\t\2\3\2\3"+
+		"\2\3\2\3\2\3\2\3\2\3\2\3\2\5\2\r\n\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3\2\3"+
+		"\2\3\2\3\2\3\2\7\2\33\n\2\f\2\16\2\36\13\2\3\2\2\3\2\3\2\2\2\2$\2\f\3"+
+		"\2\2\2\4\5\b\2\1\2\5\r\7\n\2\2\6\7\7\3\2\2\7\b\5\2\2\2\b\t\7\4\2\2\t\r"+
+		"\3\2\2\2\n\13\7\5\2\2\13\r\5\2\2\7\f\4\3\2\2\2\f\6\3\2\2\2\f\n\3\2\2\2"+
+		"\r\34\3\2\2\2\16\17\f\6\2\2\17\20\7\6\2\2\20\33\5\2\2\7\21\22\f\5\2\2"+
+		"\22\23\7\7\2\2\23\33\5\2\2\6\24\25\f\4\2\2\25\26\7\b\2\2\26\33\5\2\2\5"+
+		"\27\30\f\3\2\2\30\31\7\t\2\2\31\33\5\2\2\4\32\16\3\2\2\2\32\21\3\2\2\2"+
+		"\32\24\3\2\2\2\32\27\3\2\2\2\33\36\3\2\2\2\34\32\3\2\2\2\34\35\3\2\2\2"+
+		"\35\3\3\2\2\2\36\34\3\2\2\2\5\f\32\34";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

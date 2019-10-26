@@ -12,42 +12,49 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 public interface CNFVisitor<T> extends ParseTreeVisitor<T> {
 	/**
 	 * Visit a parse tree produced by the {@code not}
-	 * labeled alternative in {@link CNFParser#cnf}.
+	 * labeled alternative in {@link CNFParser#cnf()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitNot(CNFParser.NotContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code equivalence}
+	 * labeled alternative in {@link CNFParser#cnf()}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitEquivalence(CNFParser.EquivalenceContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code conjunction}
-	 * labeled alternative in {@link CNFParser#cnf}.
+	 * labeled alternative in {@link CNFParser#cnf()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitConjunction(CNFParser.ConjunctionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code identifierAtom}
-	 * labeled alternative in {@link CNFParser#cnf}.
+	 * labeled alternative in {@link CNFParser#cnf()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitIdentifierAtom(CNFParser.IdentifierAtomContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code disjunction}
-	 * labeled alternative in {@link CNFParser#cnf}.
+	 * labeled alternative in {@link CNFParser#cnf()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitDisjunction(CNFParser.DisjunctionContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code implication}
-	 * labeled alternative in {@link CNFParser#cnf}.
+	 * labeled alternative in {@link CNFParser#cnf()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitImplication(CNFParser.ImplicationContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code parenthesized}
-	 * labeled alternative in {@link CNFParser#cnf}.
+	 * labeled alternative in {@link CNFParser#cnf()}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */

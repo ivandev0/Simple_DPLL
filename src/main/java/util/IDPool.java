@@ -14,6 +14,11 @@ public class IDPool {
         return pool.size();
     }
 
+    public Integer getTempVar() {
+        pool.put("@" + (pool.size() + 1), pool.size() + 1);
+        return pool.size();
+    }
+
     public String nameById(Integer id) {
         for (Map.Entry<String, Integer> entry : pool.entrySet()) {
             if (id.equals(entry.getValue())) {

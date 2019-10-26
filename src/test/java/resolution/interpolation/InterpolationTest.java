@@ -34,6 +34,30 @@ public class InterpolationTest {
         Assert.assertEquals("!r ^ q", interpolationCnf.getSymbolic(pool));
     }
 
+    @Test
+    public void interpolationTest1() {
+        String phi = "!b ^ (!a v b v c) ^ a";
+        String psi = "a ^ c";
+
+        checkInterpolationCorrectness(phi, psi, Interpolation.calculate(phi, psi));
+    }
+
+    @Test
+    public void interpolationTest2() {
+        String phi = "!b ^ (!a v b v c) ^ a ^ (!d v b v !a) ^ (c v a v d)";
+        String psi = "a ^ c";
+
+        checkInterpolationCorrectness(phi, psi, Interpolation.calculate(phi, psi));
+    }
+
+    @Test
+    public void interpolationTest3() {
+        String phi = "!b ^ (!a v b v c) ^ a ^ (!d v b v !a) ^ (c v a v d)";
+        String psi = "(!f ^ d) v (d ^ a) v !(!b ^ !c ^ a)";
+
+        checkInterpolationCorrectness(phi, psi, Interpolation.calculate(phi, psi));
+    }
+
     private void checkInterpolationCorrectness(String phi, String psi, CNF interpolationCnf) {
         IDPool pool = new IDPool(); //using common pool to be sure that common variables have equal designation
         List<Model> phiModels = TseytinTransformation.transform(phi, pool).getAllModels();

@@ -1,5 +1,6 @@
 package cnf;
 
+import dpll.Model;
 import resolution.Resolution;
 import util.CombineUtils;
 import util.IDPool;
@@ -80,6 +81,25 @@ public class Disjunction {
         result.res.addRightParent(this.res);
         result.res.addLeftParent(other.res);
         return result;
+    }
+
+    Disjunction applyModel(Model model) {
+        Set<Integer> newSet = new HashSet<>();
+        for (Integer literal : values) {
+            if (model.containsLiteral(literal)) {
+                return SingleLiteralDisjunction.TRUE;
+            } else if (model.containsLiteral(-literal)) {
+                newSet.add(SingleLiteralDisjunction.FALSE.get());
+            } else {
+                newSet.add(literal);
+            }
+        }
+
+        if (newSet.stream().allMatch(it -> it == SingleLiteralDisjunction.FALSE.get()))
+            return SingleLiteralDisjunction.FALSE;
+        newSet.removeIf(it -> it == SingleLiteralDisjunction.FALSE.get());
+
+        return new Disjunction(newSet);
     }
 
     @Override

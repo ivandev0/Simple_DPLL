@@ -20,10 +20,14 @@ public class Model {
         this.model = new TreeSet<>(model);
     }
 
-    Model addInterpretation(SingleLiteralDisjunction literal) {
+    public Model addInterpretation(SingleLiteralDisjunction literal) {
         Model newModel = new Model(model);
         newModel.model.add(literal.get());
         return newModel;
+    }
+
+    public boolean containsLiteral(Integer literal) {
+        return model.contains(literal);
     }
 
     @Override

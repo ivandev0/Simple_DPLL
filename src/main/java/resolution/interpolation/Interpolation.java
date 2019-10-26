@@ -24,7 +24,7 @@ public class Interpolation {
 
         Resolution resProof = DPLL.solveWithResolution(combination);
         if (resProof == null)
-            throw new UnsupportedOperationException("Interpolation can be found only in not feasible formula");
+            throw new UnsupportedOperationException("Interpolation can be found only in not satisfiable formula");
 
         Set<Integer> onlyPhiAtoms = phi.getAtoms();
         onlyPhiAtoms.removeAll(psi.getAtoms());

@@ -1,5 +1,6 @@
 package cnf;
 
+import dpll.Model;
 import util.CombineUtils;
 import util.IDPool;
 
@@ -45,7 +46,7 @@ public class CNF {
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
 
-        if (clauses.contains(SingleLiteralDisjunction.FALSE)) return CNF.FALSE;
+        if (clauses.contains(SingleLiteralDisjunction.FALSE)) return FALSE;
 
         return new CNF(clauses);
     }
@@ -73,11 +74,11 @@ public class CNF {
                         if (first.size() == 1) {
                             Integer next = first.iterator().next();
                             second.remove(-next);
-                            if (second.size() == 0) return CNF.FALSE;
+                            if (second.size() == 0) return FALSE;
                         } else if (second.size() == 1) {
                             Integer next = second.iterator().next();
                             first.remove(-next);
-                            if (first.size() == 0) return CNF.FALSE;
+                            if (first.size() == 0) return FALSE;
                         }
                         i = j = 0;
                     }
@@ -152,6 +153,44 @@ public class CNF {
         for (Integer literal : literalsList) {
             if (!literalsList.contains(-literal)) {
                 result.add(new SingleLiteralDisjunction(literal));
+            }
+        }
+
+        return result;
+    }
+
+    public CNF applyModel(Model model) {
+        List<Disjunction> newClauses = new ArrayList<>();
+        for (Disjunction clause : clauses) {
+            Disjunction disjunction = clause.applyModel(model);
+            if (disjunction == SingleLiteralDisjunction.FALSE) {
+                return FALSE;
+            } else if (disjunction != SingleLiteralDisjunction.TRUE) {
+                newClauses.add(disjunction);
+            }
+        }
+
+        if (newClauses.size() == 0) return TRUE;
+        return new CNF(newClauses);
+    }
+
+    public List<Model> getAllModels() {
+        List<Model> result = new ArrayList<>();
+        List<Integer> atoms = new ArrayList<>(getAtoms());
+
+        for (int i = 0; i < Math.pow(2, atoms.size()); i++) {
+            Model model = new Model();
+            for (int j = 0; j < atoms.size(); j++) {
+                int bit = (i >> j) & 1;
+                SingleLiteralDisjunction literal = new SingleLiteralDisjunction(atoms.get(j));
+                if (bit == 1) {
+                    model = model.addInterpretation(literal);
+                } else {
+                    model = model.addInterpretation(literal.negate());
+                }
+            }
+            if (this.applyModel(model) == TRUE) {
+                result.add(model);
             }
         }
 

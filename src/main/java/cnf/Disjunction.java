@@ -2,6 +2,7 @@ package cnf;
 
 import resolution.Resolution;
 import util.CombineUtils;
+import util.IDPool;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -66,13 +67,6 @@ public class Disjunction {
         return result;
     }
 
-    Disjunction conjunctionWithComplementaryLiteral(SingleLiteralDisjunction complementaryLiteral) {
-        Disjunction result = new Disjunction(this);
-        result.remove(complementaryLiteral.negate());
-        result.values.add(complementaryLiteral.get());
-        return result;
-    }
-
     void remove(SingleLiteralDisjunction literal) {
         values.remove(literal.get());
         if (values.size() == 0) {
@@ -100,6 +94,10 @@ public class Disjunction {
     @Override
     public int hashCode() {
         return Objects.hash(values, isEmpty);
+    }
+
+    String getSymbolic(IDPool pool) {
+        return values.stream().map(pool::nameById).collect(Collectors.joining(" v "));
     }
 
     @Override

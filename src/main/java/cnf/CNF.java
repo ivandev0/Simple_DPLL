@@ -1,6 +1,7 @@
 package cnf;
 
 import util.CombineUtils;
+import util.IDPool;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -21,6 +22,11 @@ public class CNF {
 
     public CNF(CNF toCopy) {
         this.clauses = toCopy.clauses.stream().map(Disjunction::new).collect(Collectors.toList());
+    }
+
+    public CNF(CNF first, CNF second) {
+        this.clauses = new ArrayList<>(first.clauses);
+        this.clauses.addAll(second.clauses);
     }
 
     public CNF addSingleLiteralClause(SingleLiteralDisjunction literal) {
@@ -45,39 +51,41 @@ public class CNF {
     }
 
     /**
-     * Conjunction operation
+     * Conjunction operation with minor optimizations
      */
-    public CNF addClauses(CNF other) {
+    public CNF addClausesAndSimplify(CNF other) {
         if (this == FALSE || other == FALSE) {
             return FALSE;
         }
 
-        List<Disjunction> newList = new ArrayList<>();
-        for (Disjunction first : this.clauses.stream().filter(it -> it != SingleLiteralDisjunction.TRUE).collect(Collectors.toList())) {
-            Integer complementaryLiteral = null;
-            for (Disjunction second : other.clauses.stream().filter(it -> it != SingleLiteralDisjunction.TRUE).collect(Collectors.toList())) {
-                complementaryLiteral = CombineUtils.getComplementaryLiteral(first.values, second.values);
-                if (complementaryLiteral != null) {
-                    if (first.hasUnitSize() && second.hasUnitSize()) {
-                        continue;
+        List<Set<Integer>> clauses = new ArrayList<>();
+        clauses.addAll(this.clauses.stream().map(it -> it.values).collect(Collectors.toList()));
+        clauses.addAll(other.clauses.stream().map(it -> it.values).collect(Collectors.toList()));
+        clauses.removeIf(it -> it.contains(SingleLiteralDisjunction.TRUE.get()));
+        for (int i = 0; i < clauses.size(); i++) {
+            for (int j = 0; j < clauses.size(); j++) {
+                if (j != i) {
+                    Set<Integer> first = clauses.get(i);
+                    Set<Integer> second = clauses.get(j);
+
+                    Integer complementaryLiteral = CombineUtils.getComplementaryLiteral(first, second);
+                    if (complementaryLiteral != null) {
+                        if (first.size() == 1) {
+                            Integer next = first.iterator().next();
+                            second.remove(-next);
+                            if (second.size() == 0) return CNF.FALSE;
+                        } else if (second.size() == 1) {
+                            Integer next = second.iterator().next();
+                            first.remove(-next);
+                            if (first.size() == 0) return CNF.FALSE;
+                        }
+                        i = j = 0;
                     }
-                    if (first.hasUnitSize()) {
-                        newList.add(second.conjunctionWithComplementaryLiteral(first.getFirst()));
-                    }
-                    if (second.hasUnitSize()) {
-                        newList.add(first.conjunctionWithComplementaryLiteral(second.getFirst()));
-                    }
-                    continue;
                 }
-                newList.add(second);
-            }
-            if (complementaryLiteral == null) {
-                newList.add(first);
             }
         }
 
-        if (newList.size() == 0) return CNF.FALSE;
-        return new CNF(newList);
+        return new CNF(new ArrayList<>(clauses.stream().map(Disjunction::new).collect(Collectors.toList())));
     }
 
     public List<Disjunction> getAllDisjunctions() {
@@ -161,6 +169,10 @@ public class CNF {
     @Override
     public int hashCode() {
         return Objects.hash(clauses);
+    }
+
+    public String getSymbolic(IDPool pool) {
+        return clauses.stream().map(it -> it.getSymbolic(pool)).collect(Collectors.joining(" ^ "));
     }
 
     @Override

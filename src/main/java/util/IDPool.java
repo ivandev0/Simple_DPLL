@@ -18,6 +18,8 @@ public class IDPool {
         for (Map.Entry<String, Integer> entry : pool.entrySet()) {
             if (id.equals(entry.getValue())) {
                 return entry.getKey();
+            } else if (id.equals(-entry.getValue())) {
+                return "!" + entry.getKey();
             }
         }
         return null;

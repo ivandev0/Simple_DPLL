@@ -9,5 +9,5 @@ cnf: IDENTIFIER         #identifierAtom
     | cnf '<->' cnf     #equivalence
     ;
 
-IDENTIFIER: [a-zA-Z0-9]+;
+IDENTIFIER: [a-zA-Z0-9]+[']*;
 WS : [ \t]+ -> skip ; // toss out whitespace

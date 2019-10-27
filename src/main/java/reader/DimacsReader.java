@@ -3,34 +3,17 @@ package reader;
 import cnf.CNF;
 import cnf.Disjunction;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.*;
 
 public class DimacsReader {
     public static CNF readFromFile(File file) throws IOException {
-        BufferedReader br = Files.newBufferedReader(file.toPath());
-
-        List<String> lines = new ArrayList<>();
-        String line;
-        while ((line = br.readLine()) != null) {
-            lines.add(line);
-        }
-
-        return deserialize(lines);
+        return deserialize(ReaderUtil.readFromFile(file));
     }
 
     public static CNF readFromString(String str) {
-        StringTokenizer st = new StringTokenizer(str, "\n");
-
-        List<String> lines = new ArrayList<>();
-        while (st.hasMoreTokens()) {
-            lines.add(st.nextToken());
-        }
-
-        return deserialize(lines);
+        return deserialize(ReaderUtil.readFromString(str));
     }
 
     private static CNF deserialize(List<String> lines) {

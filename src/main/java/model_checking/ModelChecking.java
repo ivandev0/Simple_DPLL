@@ -7,7 +7,8 @@ import resolution.interpolation.Interpolation;
 
 public class ModelChecking {
     /**
-     * @return true if unsafe, false otherwise
+     * @return <code>true</code> if unsafe;
+     *         <code>false</code> otherwise;
      */
     public static boolean infiniteRun(FiniteStateMachine machine) {
         //if I ∧ F is satisfiable, return True
@@ -25,7 +26,9 @@ public class ModelChecking {
     }
 
     /**
-     * @return true if unsafe, false otherwise
+     * @return <code>true</code> if unsafe;
+     *         <code>false</code> if safe;
+     *         <code>null</code> if unknown, need further investigation;
      */
     public static Boolean finiteRun(FiniteStateMachine machine, int k) {
         if (DPLL.solve(machine.getBoundedModel(k)) != null) return true;

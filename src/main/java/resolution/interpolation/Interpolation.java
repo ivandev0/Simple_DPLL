@@ -11,16 +11,20 @@ import util.IDPool;
 import java.util.Set;
 
 public class Interpolation {
+    public static CNF calculate(String phiAsText, String psiAsText, IDPool pool) {
+        CNF phi = TseytinTransformation.transform(phiAsText, pool);
+        CNF psi = TseytinTransformation.transform(psiAsText, pool);
+
+        return calculate(phi, psi, pool);
+    }
+
     public static CNF calculate(String phiAsText, String psiAsText) {
         IDPool pool = new IDPool();
         return calculate(phiAsText, psiAsText, pool);
     }
 
-    public static CNF calculate(String phiAsText, String psiAsText, IDPool pool) {
-        CNF phi = TseytinTransformation.transform(phiAsText, pool);
-        CNF psi = TseytinTransformation.transform("!(" + psiAsText + ")", pool);
-
-        CNF combination = new CNF(phi, psi);
+    public static CNF calculate(CNF phi, CNF psi, IDPool pool) {
+        CNF combination = new CNF(phi, psi.inverse(pool));
 
         Resolution resProof = DPLL.solveWithResolution(combination);
         if (resProof == null)

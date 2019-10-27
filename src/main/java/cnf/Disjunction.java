@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 public class Disjunction {
     public Set<Integer> values;
     public Resolution res;
-    boolean isEmpty = false;
 
     public Disjunction(Integer... values) {
         this(new HashSet<>(Arrays.asList(values)));
@@ -25,9 +24,8 @@ public class Disjunction {
     Disjunction(Disjunction other) {
         this.values = new HashSet<>(other.values);
         if (other.isNotSynthetic()) {
-            this.res = other.res;
+            this.res = new Resolution(other.res);
         }
-        this.isEmpty = other.isEmpty;
     }
 
     public Disjunction setAsSynthetic() {
@@ -37,6 +35,10 @@ public class Disjunction {
 
     boolean isNotSynthetic() {
         return res != null;
+    }
+
+    boolean isEmpty() {
+        return values.isEmpty();
     }
 
     public boolean hasUnitSize() {
@@ -60,19 +62,33 @@ public class Disjunction {
             return SingleLiteralDisjunction.TRUE;
         }
 
-        if (CombineUtils.getComplementaryLiteral(this.values, other.values) != null) return SingleLiteralDisjunction.FALSE;
-
         Disjunction result = new Disjunction(this);
         result.values.addAll(other.values);
+        Integer complementaryLiteral = CombineUtils.getComplementaryLiteral(this.values, other.values);
+        if (complementaryLiteral != null) {
+            result.remove(complementaryLiteral);
+            result.remove(-complementaryLiteral);
+        }
         result.remove(SingleLiteralDisjunction.FALSE);
+
+        result.res.entry = new HashSet<>(result.values);
         return result;
     }
 
     void remove(SingleLiteralDisjunction literal) {
         values.remove(literal.get());
-        if (values.size() == 0) {
-            isEmpty = true;
+    }
+
+    private void remove(Integer literal) {
+        remove(new SingleLiteralDisjunction(literal));
+    }
+
+    void replaceInPlace(Integer oldLiteral, Integer newLiteral) {
+        if (values.contains(oldLiteral)) {
+            values.remove(oldLiteral);
+            values.add(newLiteral);
         }
+        res.setNewEntry(values);
     }
 
     Disjunction combineByLiteral(Disjunction other, Integer literal) {
@@ -88,16 +104,14 @@ public class Disjunction {
         for (Integer literal : values) {
             if (model.containsLiteral(literal)) {
                 return SingleLiteralDisjunction.TRUE;
-            } else if (model.containsLiteral(-literal)) {
-                newSet.add(SingleLiteralDisjunction.FALSE.get());
-            } else {
+            } else if (!model.containsLiteral(-literal)) {
+                //if model doesn't contains neither literal nor -literal
                 newSet.add(literal);
             }
         }
 
-        if (newSet.stream().allMatch(it -> it == SingleLiteralDisjunction.FALSE.get()))
-            return SingleLiteralDisjunction.FALSE;
-        newSet.removeIf(it -> it == SingleLiteralDisjunction.FALSE.get());
+        //if model contains only -literal
+        if (newSet.isEmpty()) return SingleLiteralDisjunction.FALSE;
 
         return new Disjunction(newSet);
     }
@@ -107,13 +121,12 @@ public class Disjunction {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Disjunction other = (Disjunction) o;
-        return isEmpty == other.isEmpty &&
-                Objects.equals(values, other.values);
+        return Objects.equals(values, other.values);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(values, isEmpty);
+        return Objects.hash(values);
     }
 
     String getSymbolic(IDPool pool) {

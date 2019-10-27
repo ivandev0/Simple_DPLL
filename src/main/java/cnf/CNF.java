@@ -1,6 +1,7 @@
 package cnf;
 
 import dpll.Model;
+import tseytin.TseytinTransformation;
 import util.CombineUtils;
 import util.IDPool;
 
@@ -79,6 +80,8 @@ public class CNF {
                             Integer next = second.iterator().next();
                             first.remove(-next);
                             if (first.size() == 0) return FALSE;
+                        } else {
+                            continue;
                         }
                         i = j = 0;
                     }
@@ -86,6 +89,7 @@ public class CNF {
             }
         }
 
+        if (clauses.size() == 0) return TRUE;
         return new CNF(new ArrayList<>(clauses.stream().map(Disjunction::new).collect(Collectors.toList())));
     }
 
@@ -94,11 +98,10 @@ public class CNF {
     }
 
     public Set<Integer> getAtoms() {
-        Set<Integer> atoms = new HashSet<>();
-        for (Disjunction clause : clauses) {
-            atoms.addAll(clause.res.entry.stream().map(Math::abs).collect(Collectors.toList()));
-        }
-        return atoms;
+        return clauses.stream()
+                .flatMap(it -> it.res.entry.stream())
+                .map(Math::abs)
+                .collect(Collectors.toSet());
     }
 
     public CNF removeAllDisjunctionsWithLiteral(SingleLiteralDisjunction literal) {
@@ -108,16 +111,23 @@ public class CNF {
 
     public CNF removeLiteralInAllDisjunctions(SingleLiteralDisjunction unitDisjunction) {
         if (unitDisjunction.isNotSynthetic()) {
-            clauses.forEach(disjunction -> {
-                if (disjunction.contains(unitDisjunction)) {
-                    disjunction.res = disjunction.combineByLiteral(unitDisjunction, unitDisjunction.get()).res;
-                    disjunction.remove(unitDisjunction);
-                }
-            });
+            clauses.stream()
+                    .filter(disjunction -> disjunction.contains(unitDisjunction))
+                    .forEach(disjunction -> {
+                        disjunction.res = disjunction.combineByLiteral(unitDisjunction, unitDisjunction.get()).res;
+                        disjunction.remove(unitDisjunction);
+                    });
         } else {
             clauses.forEach(disjunction -> disjunction.remove(unitDisjunction));
         }
         return this;
+    }
+
+    public void replaceInPlace(Integer oldLiteral, Integer newLiteral) {
+        clauses.forEach(it -> {
+            it.replaceInPlace(oldLiteral, newLiteral);
+            it.replaceInPlace(-oldLiteral, -newLiteral);
+        });
     }
 
     public boolean isEmpty() {
@@ -125,16 +135,16 @@ public class CNF {
     }
 
     public boolean containsEmptyDisjunction() {
-        return clauses.stream().anyMatch(disjunction -> disjunction.isEmpty);
+        return clauses.stream().anyMatch(Disjunction::isEmpty);
     }
 
     public boolean containsClause(Set<Integer> clause) {
-        for (Disjunction disjunction : clauses) {
-            if (disjunction.isEqualTo(clause)) {
-                return true;
-            }
-        }
-        return false;
+        return clauses.stream()
+                .anyMatch(disjunction -> disjunction.isEqualTo(clause));
+    }
+
+    public CNF inverse(IDPool pool) {
+        return TseytinTransformation.transform("!(" + this.getSymbolic(pool).replace("@", "") + ")");
     }
 
     public List<SingleLiteralDisjunction> getUnitLiterals() {
@@ -149,14 +159,10 @@ public class CNF {
                 .flatMap(disjunction -> disjunction.values.stream())
                 .collect(Collectors.toSet());
 
-        List<SingleLiteralDisjunction> result = new ArrayList<>();
-        for (Integer literal : literalsList) {
-            if (!literalsList.contains(-literal)) {
-                result.add(new SingleLiteralDisjunction(literal));
-            }
-        }
-
-        return result;
+        return literalsList.stream()
+                .filter(literal -> !literalsList.contains(-literal))
+                .map(SingleLiteralDisjunction::new)
+                .collect(Collectors.toList());
     }
 
     public CNF applyModel(Model model) {
@@ -183,11 +189,7 @@ public class CNF {
             for (int j = 0; j < atoms.size(); j++) {
                 int bit = (i >> j) & 1;
                 SingleLiteralDisjunction literal = new SingleLiteralDisjunction(atoms.get(j));
-                if (bit == 1) {
-                    model = model.addInterpretation(literal);
-                } else {
-                    model = model.addInterpretation(literal.negate());
-                }
+                model = (bit == 1) ? model.addInterpretation(literal) : model.addInterpretation(literal.negate());
             }
             if (this.applyModel(model) == TRUE) {
                 result.add(model);
@@ -211,7 +213,10 @@ public class CNF {
     }
 
     public String getSymbolic(IDPool pool) {
-        return clauses.stream().map(it -> it.getSymbolic(pool)).collect(Collectors.joining(" ^ "));
+        return clauses.stream().map(it -> {
+            String disjunction = it.getSymbolic(pool);
+            return disjunction.contains("v") ? " ( " + disjunction + " ) " : disjunction;
+        }).collect(Collectors.joining(" ^ "));
     }
 
     @Override

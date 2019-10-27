@@ -18,6 +18,16 @@ public class Resolution {
         this.entry = new HashSet<>(literals);
     }
 
+    public Resolution(Resolution res) {
+        if (res.leftParent != null) {
+            this.leftParent = new Resolution(res.leftParent);
+        }
+        if (res.rightParent != null) {
+            this.rightParent = new Resolution(res.rightParent);
+        }
+        this.entry = new HashSet<>(res.entry);
+    }
+
     public void setNewEntry(Set<Integer> literals) {
         this.entry = new HashSet<>(literals);
     }

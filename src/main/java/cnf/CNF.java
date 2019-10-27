@@ -144,7 +144,17 @@ public class CNF {
     }
 
     public CNF inverse(IDPool pool) {
-        return TseytinTransformation.transform("!(" + this.getSymbolic(pool).replace("@", "") + ")");
+        if (pool == null) {
+            return TseytinTransformation.transform("!( " + this.getSymbolic(new IDPool()) + " )");
+        }
+        SingleLiteralDisjunction lastTempVar = new SingleLiteralDisjunction(pool.getLastTempVar());
+        CNF result = new CNF(this);
+        result.clauses.forEach(it -> {
+            if (it.hasUnitSize() && it.getFirst().equals(lastTempVar)) {
+                it.replaceInPlace(lastTempVar.get(), lastTempVar.negate().get());
+            }
+        });
+        return result;
     }
 
     public List<SingleLiteralDisjunction> getUnitLiterals() {

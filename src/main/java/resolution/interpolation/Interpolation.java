@@ -24,7 +24,8 @@ public class Interpolation {
     }
 
     public static CNF calculate(CNF phi, CNF psi, IDPool pool) {
-        CNF combination = new CNF(phi, psi.inverse(pool));
+        psi = psi.inverse(pool);
+        CNF combination = new CNF(phi, psi);
 
         Resolution resProof = DPLL.solveWithResolution(combination);
         if (resProof == null)

@@ -1,5 +1,6 @@
 package util;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +18,10 @@ public class IDPool {
     public Integer getTempVar() {
         pool.put("@" + (pool.size() + 1), pool.size() + 1);
         return pool.size();
+    }
+
+    public Integer getLastTempVar() {
+        return pool.values().stream().max(Comparator.naturalOrder()).get();
     }
 
     public String nameById(Integer id) {

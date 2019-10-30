@@ -49,7 +49,7 @@ public class ModelChecking {
                 return null;
             } else {
                 //not satisfiable
-                CNF interpolation = Interpolation.calculate(pref, suff, machine.getPool());
+                CNF interpolation = Interpolation.calculate(pref, suff);
                 assert SKIP_CHECKS || DPLL.solve(pref.inverse(machine.getPool()).disjunction(interpolation)) != null : "Perf must implies interpolation";
                 assert SKIP_CHECKS || DPLL.solve(new CNF(interpolation, suff)) == null : "Suff must not be satisfiable with interpolation";
 

@@ -1,7 +1,6 @@
 package resolution.interpolation;
 
 import cnf.CNF;
-import cnf.Disjunction;
 import dpll.DPLL;
 import dpll.Model;
 import org.junit.Assert;
@@ -18,9 +17,9 @@ public class InterpolationTest {
         String psi = "(q ^ !r) v (!q ^ !s) v s";
 
         IDPool pool = new IDPool();
-        CNF interpolationCnf = Interpolation.calculate(phi, psi, pool);
+        CNF interpolationCnf = Interpolation.calculateWithInverse(phi, psi, pool);
         checkInterpolationCorrectness(phi, psi, interpolationCnf);
-        Assert.assertEquals("!r ^ q", interpolationCnf.getSymbolic(pool));
+        //Assert.assertEquals("!r ^ q", interpolationCnf.getSymbolic(pool));
     }
 
     @Test
@@ -29,9 +28,9 @@ public class InterpolationTest {
         String psi = "(q ^ !r) v (!q ^ !s) v s";
 
         IDPool pool = new IDPool();
-        CNF interpolationCnf = Interpolation.calculate(phi, psi, pool);
+        CNF interpolationCnf = Interpolation.calculateWithInverse(phi, psi, pool);
         checkInterpolationCorrectness(phi, psi, interpolationCnf);
-        Assert.assertEquals("!r ^ q", interpolationCnf.getSymbolic(pool));
+        //Assert.assertEquals("!r ^ q", interpolationCnf.getSymbolic(pool));
     }
 
     @Test
@@ -39,7 +38,7 @@ public class InterpolationTest {
         String phi = "!b ^ (!a v b v c) ^ a";
         String psi = "a ^ c";
 
-        checkInterpolationCorrectness(phi, psi, Interpolation.calculate(phi, psi));
+        checkInterpolationCorrectness(phi, psi, Interpolation.calculateWithInverse(phi, psi));
     }
 
     @Test
@@ -47,7 +46,7 @@ public class InterpolationTest {
         String phi = "!b ^ (!a v b v c) ^ a ^ (!d v b v !a) ^ (c v a v d)";
         String psi = "a ^ c";
 
-        checkInterpolationCorrectness(phi, psi, Interpolation.calculate(phi, psi));
+        checkInterpolationCorrectness(phi, psi, Interpolation.calculateWithInverse(phi, psi));
     }
 
     @Test
@@ -55,7 +54,7 @@ public class InterpolationTest {
         String phi = "!b ^ (!a v b v c) ^ a ^ (!d v b v !a) ^ (c v a v d)";
         String psi = "(!f ^ d) v (d ^ a) v !(!b ^ !c ^ a)";
 
-        checkInterpolationCorrectness(phi, psi, Interpolation.calculate(phi, psi));
+        checkInterpolationCorrectness(phi, psi, Interpolation.calculateWithInverse(phi, psi));
     }
 
     private void checkInterpolationCorrectness(String phi, String psi, CNF interpolationCnf) {

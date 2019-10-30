@@ -11,24 +11,23 @@ import util.IDPool;
 import java.util.Set;
 
 public class Interpolation {
-    public static CNF calculate(String phiAsText, String psiAsText, IDPool pool) {
+    public static CNF calculateWithInverse(String phiAsText, String psiAsText, IDPool pool) {
         CNF phi = TseytinTransformation.transform(phiAsText, pool);
-        CNF psi = TseytinTransformation.transform(psiAsText, pool);
+        CNF psi = TseytinTransformation.transform("!(" + psiAsText + ")", pool);
 
-        return calculate(phi, psi, pool);
+        return calculate(phi, psi);
     }
 
-    public static CNF calculate(String phiAsText, String psiAsText) {
+    public static CNF calculateWithInverse(String phiAsText, String psiAsText) {
         IDPool pool = new IDPool();
-        return calculate(phiAsText, psiAsText, pool);
+        return calculateWithInverse(phiAsText, psiAsText, pool);
     }
 
-    public static CNF calculate(CNF phi, CNF psi, IDPool pool) {
-        psi = psi.inverse(pool);
+    public static CNF calculate(CNF phi, CNF psi) {
         CNF combination = new CNF(phi, psi);
 
         Resolution resProof = DPLL.solveWithResolution(combination);
-        if (resProof == null)
+        if (resProof == null || !resProof.entry.isEmpty())
             throw new UnsupportedOperationException("Interpolation can be found only in not satisfiable formula");
 
         Set<Integer> onlyPhiAtoms = phi.getAtoms();
@@ -40,7 +39,7 @@ public class Interpolation {
         Set<Integer> commonAtoms = phi.getAtoms();
         commonAtoms.retainAll(psi.getAtoms());
 
-        return getInterpolation(resProof, onlyPhiAtoms, onlyPsiAtoms, commonAtoms, psi, phi);
+        return getInterpolation(resProof, onlyPhiAtoms, onlyPsiAtoms, commonAtoms, psi, phi).removeDuplicates();
     }
 
     private static CNF getInterpolation(

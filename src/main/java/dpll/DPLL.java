@@ -8,6 +8,7 @@ import java.util.Comparator;
 
 public class DPLL {
     public static Model solve(CNF cnf) {
+        if (cnf == CNF.FALSE || cnf.containsFalseClause()) return null;
         return solve(cnf, new Model());
     }
 

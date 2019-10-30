@@ -2,7 +2,6 @@ package cnf;
 
 import dpll.Model;
 import tseytin.TseytinTransformation;
-import util.CombineUtils;
 import util.IDPool;
 
 import java.util.*;
@@ -48,6 +47,7 @@ public class CNF {
                 .collect(Collectors.toList());
 
         if (clauses.contains(SingleLiteralDisjunction.FALSE)) return FALSE;
+        clauses.remove(SingleLiteralDisjunction.TRUE);
 
         return new CNF(clauses);
     }
@@ -60,34 +60,15 @@ public class CNF {
             return FALSE;
         }
 
+        //if (clauses.size() == 1 && other.clauses.size() == 1)
+        if (clauses.get(0).areSingleLiteralComplementary(other.clauses.get(0))) {
+            return FALSE;
+        }
+
         List<Set<Integer>> clauses = new ArrayList<>();
         clauses.addAll(this.clauses.stream().map(it -> it.values).collect(Collectors.toList()));
         clauses.addAll(other.clauses.stream().map(it -> it.values).collect(Collectors.toList()));
         clauses.removeIf(it -> it.contains(SingleLiteralDisjunction.TRUE.get()));
-        for (int i = 0; i < clauses.size(); i++) {
-            for (int j = 0; j < clauses.size(); j++) {
-                if (j != i) {
-                    Set<Integer> first = clauses.get(i);
-                    Set<Integer> second = clauses.get(j);
-
-                    Integer complementaryLiteral = CombineUtils.getComplementaryLiteral(first, second);
-                    if (complementaryLiteral != null) {
-                        if (first.size() == 1) {
-                            Integer next = first.iterator().next();
-                            second.remove(-next);
-                            if (second.size() == 0) return FALSE;
-                        } else if (second.size() == 1) {
-                            Integer next = second.iterator().next();
-                            first.remove(-next);
-                            if (first.size() == 0) return FALSE;
-                        } else {
-                            continue;
-                        }
-                        i = j = 0;
-                    }
-                }
-            }
-        }
 
         if (clauses.size() == 0) return TRUE;
         return new CNF(new ArrayList<>(clauses.stream().map(Disjunction::new).collect(Collectors.toList())));
@@ -123,6 +104,11 @@ public class CNF {
         return this;
     }
 
+    public CNF removeDuplicates() {
+        clauses = new ArrayList<>(new HashSet<>(this.clauses));
+        return this;
+    }
+
     public void replaceInPlace(Integer oldLiteral, Integer newLiteral) {
         clauses.forEach(it -> {
             it.replaceInPlace(oldLiteral, newLiteral);
@@ -143,18 +129,13 @@ public class CNF {
                 .anyMatch(disjunction -> disjunction.isEqualTo(clause));
     }
 
+    public boolean containsFalseClause() {
+        return clauses.stream().anyMatch(disjunction -> disjunction == SingleLiteralDisjunction.FALSE);
+    }
+
+
     public CNF inverse(IDPool pool) {
-        if (pool == null) {
-            return TseytinTransformation.transform("!( " + this.getSymbolic(new IDPool()) + " )");
-        }
-        SingleLiteralDisjunction lastTempVar = new SingleLiteralDisjunction(pool.getLastTempVar());
-        CNF result = new CNF(this);
-        result.clauses.forEach(it -> {
-            if (it.hasUnitSize() && it.getFirst().equals(lastTempVar)) {
-                it.replaceInPlace(lastTempVar.get(), lastTempVar.negate().get());
-            }
-        });
-        return result;
+        return TseytinTransformation.transform("!( " + this.getSymbolic(pool) + " )", pool);
     }
 
     public List<SingleLiteralDisjunction> getUnitLiterals() {

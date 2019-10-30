@@ -1,7 +1,5 @@
 package util;
 
-import cnf.SingleLiteralDisjunction;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,7 +7,8 @@ public class CombineUtils {
     public static Integer getComplementaryLiteral(Set<Integer> first, Set<Integer> second) {
         for (Integer leftSetLiteral : first) {
             for (Integer rightSetLiteral : second) {
-                if (leftSetLiteral == -rightSetLiteral) {
+                //convert to long to avoid overflow from "-Integer.MIN_VALUE"
+                if ((long)leftSetLiteral == -(long)rightSetLiteral) {
                     return leftSetLiteral;
                 }
             }

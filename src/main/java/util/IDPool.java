@@ -1,6 +1,5 @@
 package util;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,10 +19,6 @@ public class IDPool {
         return pool.size();
     }
 
-    public Integer getLastTempVar() {
-        return pool.values().stream().max(Comparator.naturalOrder()).get();
-    }
-
     public String nameById(Integer id) {
         for (Map.Entry<String, Integer> entry : pool.entrySet()) {
             if (id.equals(entry.getValue())) {
@@ -32,10 +27,11 @@ public class IDPool {
                 return "!" + entry.getKey();
             }
         }
-        return null;
-    }
-
-    public int size() {
-        return pool.size();
+        // if pool doesn't contains given id
+        if (id > 0) {
+            return String.valueOf(id);
+        } else {
+            return "!" + (-id);
+        }
     }
 }

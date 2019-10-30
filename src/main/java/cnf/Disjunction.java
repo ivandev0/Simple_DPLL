@@ -62,14 +62,14 @@ public class Disjunction {
             return SingleLiteralDisjunction.TRUE;
         }
 
+        if (CombineUtils.getComplementaryLiteral(this.values, other.values) != null) {
+            return SingleLiteralDisjunction.TRUE;
+        }
+
         Disjunction result = new Disjunction(this);
         result.values.addAll(other.values);
-        Integer complementaryLiteral = CombineUtils.getComplementaryLiteral(this.values, other.values);
-        if (complementaryLiteral != null) {
-            result.remove(complementaryLiteral);
-            result.remove(-complementaryLiteral);
-        }
         result.remove(SingleLiteralDisjunction.FALSE);
+        if (result.isEmpty()) return SingleLiteralDisjunction.FALSE;
 
         result.res.entry = new HashSet<>(result.values);
         return result;
@@ -77,10 +77,6 @@ public class Disjunction {
 
     void remove(SingleLiteralDisjunction literal) {
         values.remove(literal.get());
-    }
-
-    private void remove(Integer literal) {
-        remove(new SingleLiteralDisjunction(literal));
     }
 
     void replaceInPlace(Integer oldLiteral, Integer newLiteral) {
@@ -97,6 +93,10 @@ public class Disjunction {
         result.res.addRightParent(this.res);
         result.res.addLeftParent(other.res);
         return result;
+    }
+
+    boolean areSingleLiteralComplementary(Disjunction other) {
+        return this.hasUnitSize() && other.hasUnitSize() && CombineUtils.getComplementaryLiteral(values, other.values) != null;
     }
 
     Disjunction applyModel(Model model) {
@@ -130,7 +130,7 @@ public class Disjunction {
     }
 
     String getSymbolic(IDPool pool) {
-        return values.stream().map(pool::nameById).collect(Collectors.joining(" v "));
+        return values.stream().map(pool::nameById).map(it -> it.replace("@", "")).collect(Collectors.joining(" v "));
     }
 
     @Override

@@ -77,10 +77,8 @@ public class FormulaVisitor extends CNFBaseVisitor<Integer> {
         Integer right = visit(ctx.cnf(1));
         Integer additionalVar = pool.getTempVar();
 
-        disjunctions.add(new Disjunction(additionalVar, left, -right));
-        disjunctions.add(new Disjunction(additionalVar, -left, right));
+        disjunctions.add(new Disjunction(additionalVar, left, right));
         disjunctions.add(new Disjunction(additionalVar, -left, -right));
-        disjunctions.add(new Disjunction(-additionalVar, left, right));
         disjunctions.add(new Disjunction(-additionalVar, left, -right));
         disjunctions.add(new Disjunction(-additionalVar, -left, right));
 

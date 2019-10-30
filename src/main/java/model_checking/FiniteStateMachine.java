@@ -1,19 +1,23 @@
 package model_checking;
 
 import cnf.CNF;
+import tseytin.TseytinTransformation;
 import util.IDPool;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class FiniteStateMachine {
     private String[] vars;
     private CNF init;
-    private CNF transition;
+    private String transition;
     private CNF err;
     private IDPool pool;
 
-    public FiniteStateMachine(String[] vars, CNF init, CNF transition, CNF err, IDPool pool) {
+    private List<CNF> transitionCache = new ArrayList<>();
+
+    public FiniteStateMachine(String[] vars, CNF init, String transition, CNF err, IDPool pool) {
         this.vars = vars;
         this.init = init;
         this.transition = transition;
@@ -29,16 +33,18 @@ public class FiniteStateMachine {
         this.init = init;
     }
 
-    public CNF getTransition() {
-        return transition;
-    }
-
-    CNF getErr() {
-        return err;
-    }
-
     public IDPool getPool() {
         return pool;
+    }
+
+    private CNF getTransition(int i) {
+        if (transitionCache.size() > i) {
+            return transitionCache.get(i);
+        }
+
+        CNF cnf = replaceForward(TseytinTransformation.transform(transition, pool), i);
+        transitionCache.add(cnf);
+        return cnf;
     }
 
     CNF getBoundedModel(int k) {
@@ -49,34 +55,39 @@ public class FiniteStateMachine {
     }
 
     CNF getPref() {
-        return new CNF(init, transition);
+        return new CNF(init, getTransition(0));
     }
 
     CNF getSuff(int k) {
-        List<String> currentVars = Arrays.asList(vars);
         CNF cnf = new CNF();
-        CNF next;
-        CNF newErr = new CNF(err);
         for (int i = 1; i < k; i++) {
-            currentVars.forEach(it -> newErr.replaceInPlace(pool.idByName(it), pool.idByName(it + "'")));
-            next = getNext(currentVars);
-            cnf = new CNF(cnf, next);
+            cnf = new CNF(cnf, getTransition(i));
         }
-        currentVars.forEach(it -> newErr.replaceInPlace(pool.idByName(it), pool.idByName(it + "'")));
 
-        return new CNF(cnf, newErr);
+        return new CNF(cnf, replaceForward(new CNF(err), k));
     }
 
-    private CNF getNext(List<String> currentVars) {
-        CNF newTransition = new CNF(transition);
-
+    private CNF replaceForward(CNF cnf, int k) {
         //v' -> v''
-        currentVars.forEach(it -> newTransition.replaceInPlace(pool.idByName(it + "'"), pool.idByName(it + "''")));
+        for (int i = 0; i < k; i++) {
+            String quote = new String(new char[i + 1]).replace("\0", "'");
+            Arrays.stream(vars).forEach(it -> cnf.replaceInPlace(pool.idByName(it + quote), pool.idByName(it + quote + "'")));
+        }
         //v -> v'
-        currentVars.forEach(it -> newTransition.replaceInPlace(pool.idByName(it), pool.idByName(it + "'")));
+        for (int i = 0; i < k; i++) {
+            String quote = new String(new char[i]).replace("\0", "'");
+            Arrays.stream(vars).forEach(it -> cnf.replaceInPlace(pool.idByName(it + quote), pool.idByName(it + quote + "'")));
+        }
+        return cnf;
+    }
 
-        currentVars.forEach(it -> it += "'");
-
-        return newTransition;
+    CNF replaceBackward(CNF cnf, int k) {
+        //v' -> v
+        while (k != 0) {
+            String sym = new String(new char[k]).replace("\0", "'");
+            Arrays.stream(vars).forEach(it -> cnf.replaceInPlace(pool.idByName(it + sym), pool.idByName(it)));
+            k--;
+        }
+        return cnf;
     }
 }

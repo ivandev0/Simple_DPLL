@@ -36,7 +36,7 @@ public class FiniteStateMachineReader {
         Arrays.stream(vars).forEach(pool::idByName);
 
         CNF init = TseytinTransformation.transform(lines.get(1), pool);
-        CNF transition = TseytinTransformation.transform(lines.get(2), pool);
+        String transition = lines.get(2);
         CNF err = TseytinTransformation.transform(lines.get(3), pool);
 
         return new FiniteStateMachine(vars, init, transition, err, pool);

@@ -209,4 +209,58 @@ public class ModelCheckingTest {
         Assert.assertTrue(ModelChecking.infiniteRun(fsm));
         ModelChecking.SKIP_CHECKS = false;
     }
+
+    @Test
+    /*      |--------------------------
+            v                         |
+        -> 000 --> 001 --> 100 --|    |
+            |       ^            v    |
+            |    |--|           110 --|       111 -> 111;
+            v |--                ^
+           010 --> 011 --> 101 --|
+     */
+    public void longSafeTest() {
+        FiniteStateMachine fsm = FiniteStateMachineReader.readFromString(
+                "v1 v2 v3\n" +
+                        "!v1 ^ !v2 ^ !v3\n" +
+                        "( (!v1 ^ !v2 ^ !v3) -> ((!v1' ^ !v2' ^ v3') v (!v1' ^ !v2' ^ v3')) ) " +
+                        "v ( (!v1 ^ !v2 ^ v3) -> (v1' ^ !v2' ^ !v3') ) " +
+                        "v ( (!v1 ^ v2 ^ !v3) -> ((!v1' ^ !v2' ^ v3') v (!v1' ^ v2' ^ v3')) ) " +
+                        "v ( (!v1 ^ v2 ^ v3) -> (v1' ^ !v2' ^ v3') ) " +
+                        "v ( (v1 ^ !v2 ^ !v3) -> (v1' ^ v2' ^ !v3') ) " +
+                        "v ( (v1 ^ !v2 ^ v3) -> (v1' ^ v2' ^ !v3') ) " +
+                        "v ( (v1 ^ v2 ^ !v3) -> (!v1' ^ !v2' ^ !v3') ) " +
+                        "v ( (v1 ^ v2 ^ v3) -> (v1' ^ v2' ^ v3') )\n" +
+                        "v1 ^ v2 ^ v3"
+        );
+
+        Assert.assertFalse(ModelChecking.infiniteRun(fsm));
+    }
+
+    @Test
+    /*      |--------------------------
+            v                         |
+        -> 000 --> 001 --> 100 --|    |
+            |       ^            v    |
+            |    |--|           110 --|-----> 111 -> 111;
+            v |--                ^
+           010 --> 011 --> 101 --|
+     */
+    public void longUnsafeTest() {
+        FiniteStateMachine fsm = FiniteStateMachineReader.readFromString(
+                "v1 v2 v3\n" +
+                        "!v1 ^ !v2 ^ !v3\n" +
+                        "( (!v1 ^ !v2 ^ !v3) -> ((!v1' ^ !v2' ^ v3') v (!v1' ^ !v2' ^ v3')) ) " +
+                        "v ( (!v1 ^ !v2 ^ v3) -> (v1' ^ !v2' ^ !v3') ) " +
+                        "v ( (!v1 ^ v2 ^ !v3) -> ((!v1' ^ !v2' ^ v3') v (!v1' ^ v2' ^ v3')) ) " +
+                        "v ( (!v1 ^ v2 ^ v3) -> (v1' ^ !v2' ^ v3') ) " +
+                        "v ( (v1 ^ !v2 ^ !v3) -> (v1' ^ v2' ^ !v3') ) " +
+                        "v ( (v1 ^ !v2 ^ v3) -> (v1' ^ v2' ^ !v3') ) " +
+                        "v ( (v1 ^ v2 ^ !v3) -> ((!v1' ^ !v2' ^ !v3') v (v1' ^ v2' ^ v3')) ) " +
+                        "v ( (v1 ^ v2 ^ v3) -> (v1' ^ v2' ^ v3') )\n" +
+                        "v1 ^ v2 ^ v3"
+        );
+
+        Assert.assertTrue(ModelChecking.infiniteRun(fsm));
+    }
 }

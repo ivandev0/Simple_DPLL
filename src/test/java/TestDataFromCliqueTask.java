@@ -41,4 +41,11 @@ public class TestDataFromCliqueTask {
     public void testN6K2() throws IOException {
         basicTest("cnf_n6_k2", true);
     }
+
+    @Test
+    public void testN8K3() throws IOException {
+        long time = System.nanoTime();
+        basicTest("k3/cnf_n8_k3", false);
+        System.out.println("calculated in " + (System.nanoTime() - time) * 1e-9 + " seconds");
+    }
 }

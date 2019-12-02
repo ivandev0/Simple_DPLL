@@ -1,5 +1,6 @@
 package dpll;
 
+import cnf.Disjunction;
 import cnf.SingleLiteralDisjunction;
 
 import java.util.*;
@@ -28,6 +29,10 @@ public class Model {
 
     public boolean containsLiteral(Integer literal) {
         return model.contains(literal);
+    }
+
+    public Disjunction toInverseDisjunction() {
+        return new Disjunction(model.stream().map(it -> -it).collect(Collectors.toSet()));
     }
 
     @Override
